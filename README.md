@@ -1,5 +1,8 @@
-Main
-=========
+# virtmem Continued
+
+Original library: https://github.com/rhelmus/virtmem
+
+This version of the library is in maintenance-only mode. The intention is to continue the legacy of the original library, but made to work for modern compilation systems. No new features outside of that which the community or the original author provide are scheduled.
 
 # Introduction
 `virtmem` is an Arduino library that allows your project to easily use an
