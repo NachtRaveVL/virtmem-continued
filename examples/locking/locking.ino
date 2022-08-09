@@ -7,8 +7,7 @@
  * This example uses the SD allocator, however, any other allocator could be used as well.
  *
  * Requirements:
- *  - the SdFat library should be installed (https://github.com/greiman/SdFat)
- *  - an FAT formatted SD card
+ *  - a FAT32 formatted SD card (SDHC recommended)
  *  - a connection to the SD card via SPI
  */
 
@@ -25,8 +24,7 @@ const int spiSpeed = SPI_FULL_SPEED;
 // pull in complete virtmem namespace
 using namespace virtmem;
 
-SdFat sd;
-SDVAlloc sdvalloc(poolSize);
+SDVAlloc sdvAlloc(poolSize, chipSelect, spiSpeed);
 
 void setup()
 {
@@ -38,11 +36,7 @@ void setup()
 
     Serial.begin(115200);
 
-    // initialize SdFat library: this should be done before starting the allocator!
-    if (!sd.begin(chipSelect, spiSpeed))
-        sd.initErrorHalt();
-
-    sdvalloc.start();
+    sdvAlloc.start();
 
     delay(3000); // add some delay so the user can connect with a serial terminal
 
@@ -52,7 +46,7 @@ void setup()
 void loop()
 {
     // allocate a string in virtual memory
-    VPtr<char, SDVAlloc> vstr = sdvalloc.alloc<char>(128);
+    VPtr<char, SDVAlloc> vstr = sdvAlloc.alloc<char>(128);
 
     strcpy(vstr, "hello (virtual) world!");
 
@@ -83,7 +77,7 @@ void loop()
 
     Serial.println(""); // end with a newline
 
-    sdvalloc.free(vstr); // And free the virtual memory
+    sdvAlloc.free(vstr); // And free the virtual memory
 
     delay(1000); // keep doing this with 1 second pauses inbetween...
 }

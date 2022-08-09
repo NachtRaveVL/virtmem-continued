@@ -13,11 +13,11 @@ typedef StdioVAlloc::TVPtr<char>::type CharVirtPtr;
 class VAllocFixture: public ::testing::Test
 {
 protected:
-    StdioVAlloc valloc;
+    StdioVAlloc vAlloc;
 
 public:
-    void SetUp(void) { valloc.setPoolSize(1024 * 1024 * 10); valloc.start(); }
-    void TearDown(void) { valloc.stop(); }
+    void SetUp(void) { vAlloc.setPoolSize(1024 * 1024 * 10); vAlloc.start(); }
+    void TearDown(void) { vAlloc.stop(); }
 };
 
 template <typename T> class VPtrFixture: public VAllocFixture

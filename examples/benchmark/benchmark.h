@@ -19,24 +19,24 @@ inline void printBenchEnd(uint32_t time, uint32_t bufsize, uint8_t repeats)
     Serial.println(" kB/s");
 }
 
-template <typename TA> void printVAStats(TA &valloc)
+template <typename TA> void printVAStats(TA &vAlloc)
 {
 #ifdef VIRTMEM_TRACE_STATS
     Serial.println("allocator stats:");
-    Serial.print("Page reads:"); Serial.println(valloc.getBigPageReads());
-    Serial.print("Page writes:"); Serial.println(valloc.getBigPageWrites());
-    Serial.print("kB read:"); Serial.println(valloc.getBytesRead() / 1024);
-    Serial.print("kB written:"); Serial.println(valloc.getBytesWritten() / 1024);
-    valloc.resetStats();
+    Serial.print("Page reads:"); Serial.println(vAlloc.getBigPageReads());
+    Serial.print("Page writes:"); Serial.println(vAlloc.getBigPageWrites());
+    Serial.print("kB read:"); Serial.println(vAlloc.getBytesRead() / 1024);
+    Serial.print("kB written:"); Serial.println(vAlloc.getBytesWritten() / 1024);
+    vAlloc.resetStats();
 #endif
 }
 
-template <typename TA> void runBenchmarks(TA &valloc, uint32_t bufsize, uint8_t repeats)
+template <typename TA> void runBenchmarks(TA &vAlloc, uint32_t bufsize, uint8_t repeats)
 {
     typedef VPtr<char, TA> TVirtPtr;
-    valloc.start();
+    vAlloc.start();
 
-    TVirtPtr buf = valloc.template alloc<char>(bufsize);
+    TVirtPtr buf = vAlloc.template alloc<char>(bufsize);
 
     printBenchStart(bufsize, repeats);
 
@@ -47,9 +47,9 @@ template <typename TA> void runBenchmarks(TA &valloc, uint32_t bufsize, uint8_t 
             buf[j] = (char)j;
     }
 
-    valloc.clearPages();
+    vAlloc.clearPages();
     printBenchEnd(millis() - time, bufsize, repeats);
-    printVAStats(valloc);
+    printVAStats(vAlloc);
 
     Serial.println("Reading data");
 
@@ -67,9 +67,9 @@ template <typename TA> void runBenchmarks(TA &valloc, uint32_t bufsize, uint8_t 
         }
     }
 
-    valloc.clearPages();
+    vAlloc.clearPages();
     printBenchEnd(millis() - time, bufsize, repeats);
-    printVAStats(valloc);
+    printVAStats(vAlloc);
 
     Serial.println("Repeating tests with locks...");
     time = millis();
@@ -82,7 +82,7 @@ template <typename TA> void runBenchmarks(TA &valloc, uint32_t bufsize, uint8_t 
 
         while (sizeleft)
         {
-            uint16_t lsize = min(valloc.getBigPageSize(), sizeleft);
+            uint16_t lsize = min(vAlloc.getBigPageSize(), sizeleft);
             VPtrLock<TVirtPtr> l = makeVirtPtrLock(p, lsize);
             lsize = l.getLockSize();
             char *b = *l;
@@ -92,9 +92,9 @@ template <typename TA> void runBenchmarks(TA &valloc, uint32_t bufsize, uint8_t 
         }
     }
 
-    valloc.clearPages();
+    vAlloc.clearPages();
     printBenchEnd(millis() - time, bufsize, repeats);
-    printVAStats(valloc);
+    printVAStats(vAlloc);
 
     Serial.println("Reading data");
 
@@ -107,7 +107,7 @@ template <typename TA> void runBenchmarks(TA &valloc, uint32_t bufsize, uint8_t 
 
         while (sizeleft)
         {
-            uint16_t lsize = min(valloc.getBigPageSize(), sizeleft);
+            uint16_t lsize = min(vAlloc.getBigPageSize(), sizeleft);
             VPtrLock<TVirtPtr> l = makeVirtPtrLock(p, lsize, true);
             lsize = l.getLockSize();
             char *b = *l;
@@ -124,11 +124,11 @@ template <typename TA> void runBenchmarks(TA &valloc, uint32_t bufsize, uint8_t 
         }
     }
 
-    valloc.clearPages();
+    vAlloc.clearPages();
     printBenchEnd(millis() - time, bufsize, repeats);
-    printVAStats(valloc);
+    printVAStats(vAlloc);
 
-    valloc.stop();
+    vAlloc.stop();
 }
 
 

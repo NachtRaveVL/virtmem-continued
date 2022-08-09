@@ -27,7 +27,7 @@ SPIRamConfig scfg[2] =
 };
 
 typedef MultiSPIRAMVAllocP<scfg, 2> Alloc; // shortcut
-Alloc valloc;
+Alloc vAlloc;
 
 void setup()
 {
@@ -35,7 +35,7 @@ void setup()
         ; // wait for serial to come up
 
     Serial.begin(115200);
-    valloc.start();
+    vAlloc.start();
 
     delay(3000); // add some delay so the user can connect with a serial terminal
 }
@@ -43,12 +43,12 @@ void setup()
 void loop()
 {
     // allocate some integer on virtual memory
-    VPtr<int, Alloc> vpi = valloc.alloc<int>();
+    VPtr<int, Alloc> vpi = vAlloc.alloc<int>();
 
     *vpi = 42; // assign some value, just like a regular pointer!
     Serial.print("*vpi = "); Serial.println(*vpi);
 
-    valloc.free(vpi); // And free the virtual memory
+    vAlloc.free(vpi); // And free the virtual memory
 
     delay(1000); // keep doing this with 1 second pauses inbetween...
 }

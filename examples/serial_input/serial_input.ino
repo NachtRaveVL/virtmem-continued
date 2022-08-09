@@ -18,27 +18,27 @@ const uint32_t poolSize = 1024l * 32l; // the size of the virtual memory pool (i
 // pull in complete virtmem namespace
 using namespace virtmem;
 
-SerialVAlloc valloc(poolSize); // default settings: use Serial with 115200 baudrate
+SerialVAlloc vAlloc(poolSize); // default settings: use Serial with 115200 baudrate
 
 void setup()
 {
     while (!Serial)
         ; // wait for serial to come up
 
-    valloc.start();
+    vAlloc.start();
 }
 
 void loop()
 {
-    if (valloc.input.availableAtLeast() > 0) // some input available?
+    if (vAlloc.input.availableAtLeast() > 0) // some input available?
     {
         // get the amount of bytes available.
         // NOTE: this function is the more 'expensive', but accurate version of
         // availableAtLeast().
-        int bytes = valloc.input.available();
+        int bytes = vAlloc.input.available();
 
         // read a single byte first
-        Serial.print("read single byte: "); Serial.println(valloc.input.read());
+        Serial.print("read single byte: "); Serial.println(vAlloc.input.read());
         --bytes;
 
         if (bytes > 0) // more input?
@@ -48,7 +48,7 @@ void loop()
 
             bytes = max(bytes, 127); // make sure we don't read too much
 
-            const int readbytes = valloc.input.readBytes(buffer, bytes);
+            const int readbytes = vAlloc.input.readBytes(buffer, bytes);
             buffer[readbytes] = 0; // make sure the string is null terminated
             Serial.print("read string: "); Serial.println(buffer);
         }

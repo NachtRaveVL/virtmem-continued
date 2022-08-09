@@ -31,24 +31,18 @@ plaforms (x86 port exists for debugging)
 // Simplify virtmem usage
 using namespace virtmem;
 
-// Create virtual a memory allocator that uses SD card (with FAT filesystem) as virtual memory pool
+// Create virtual a memory allocator that uses SD card (with FAT32 filesystem) as virtual memory pool
 // The default memory pool size (1 MB) is used.
-SDVAlloc valloc;
-
-SdFat sd;
+SDVAlloc vAlloc;
 
 struct MyStruct { int x, y; };
 
 void setup()
 {
-    // Initialize SdFatlib
-    if (!sd.begin(9, SPI_FULL_SPEED))
-        sd.initErrorHalt();
-
-    valloc.start(); // Always call this to initialize the allocator before using it
+    vAlloc.start(); // Always call this to initialize the allocator before using it
 
     // Allocate a char buffer of 10000 bytes in virtual memory and store the address to a virtual pointer
-    VPtr<char, SDVAlloc> str = valloc.alloc<char>(10000);
+    VPtr<char, SDVAlloc> str = vAlloc.alloc<char>(10000);
 
     // Set the first 1000 bytes to 'A'
     memset(str, 'A', 1000);
@@ -57,7 +51,7 @@ void setup()
     str[1] = 'B';
 
     // Own types (structs/classes) also work.
-    VPtr<MyStruct, SDVAlloc> ms = valloc.alloc<MyStruct>(); // alloc call without parameters: use automatic size deduction
+    VPtr<MyStruct, SDVAlloc> ms = vAlloc.alloc<MyStruct>(); // alloc call without parameters: use automatic size deduction
     ms->x = 5;
     ms->y = 15;
 }

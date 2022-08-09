@@ -29,14 +29,14 @@ namespace virtmem {
  * By default, the allocator uses the default serial port (i.e. the `Serial` class). In this case,
  * the @ref SerialVAlloc shortcut can also be used:
  * @code{.cpp}
- * SerialVAllocP<> valloc;
- * SerialVAlloc valloc2; // same as above, both use the default serial port (Serial)
+ * SerialVAllocP<> vAlloc;
+ * SerialVAlloc vAlloc2; // same as above, both use the default serial port (Serial)
  * @endcode
  * If another serial port is desired, both the _type_ and (a pointer to the) _variable_ must
  * be specified:
  * @code{.cpp}
  * // Uses Serial1 with a default pool size and baudrate
- * SerialVAllocP<typeof(Serial1)> valloc(VIRTMEM_DEFAULT_POOLSIZE, 115200, &Serial1);
+ * SerialVAllocP<typeof(Serial1)> vAlloc(VIRTMEM_DEFAULT_POOLSIZE, 115200, &Serial1);
  * @endcode
  * The `typeof` expression used in the above example may raise some questions. We need to know
  * the type of the serial class to be used (in this case the class that defines Serial1). Since
@@ -47,7 +47,7 @@ namespace virtmem {
  * such as `SoftwareSerial` can also be used:
  * @code{.cpp}
  * SoftwareSerial sserial(10, 11);
- * SerialVAllocP<SoftwareSerial> valloc(SERIALRAM_POOLSIZE, 115200, &sserial);
+ * SerialVAllocP<SoftwareSerial> vAlloc(SERIALRAM_POOLSIZE, 115200, &sserial);
  * @endcode
  *
  * __Communication with the RAM host__
@@ -112,11 +112,11 @@ usage: serial_host.py [-h] [-p PORT] [-b BAUD] [-l PASSDEV] [-r PASSBAUD]
  * `serial_host.py` is still sent to the MCU running `virtmem`. To retrieve it, the
  * SerialVAllocP::input class must be used:
  * @code{.cpp}
- * SerialVAlloc valloc;
+ * SerialVAlloc vAlloc;
  * // ...
- * if (valloc.input.available())
+ * if (vAlloc.input.available())
  * {
- *     char c = valloc.input.read();
+ *     char c = vAlloc.input.read();
  *     // ...
  * }
  * @endcode

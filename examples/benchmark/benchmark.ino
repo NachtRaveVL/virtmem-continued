@@ -57,8 +57,7 @@ SerialVAlloc serialRamAlloc(SERIALRAM_POOLSIZE, /*115200*/1000000);
 #ifdef RUN_SDALLOC
 #include <SD.h>
 #include <alloc/sd_alloc.h>
-SDVAlloc SDRamAlloc(SD_POOLSIZE);
-SdFat sd;
+SDVAlloc SDRamAlloc(SD_POOLSIZE, SD_CSPIN, SD_SPISPEED);
 #endif
 
 
@@ -111,11 +110,6 @@ void setup()
     Serial.begin(115200);
 
     delay(3000);
-#endif
-
-#ifdef RUN_SDALLOC
-    if (!sd.begin(SD_CSPIN, SD_SPISPEED))
-        sd.initErrorHalt();
 #endif
 }
 

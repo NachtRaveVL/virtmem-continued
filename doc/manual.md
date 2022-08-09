@@ -33,24 +33,18 @@ Before delving into specifics, here is a simple example to demonstrate how `virt
 // Simplify virtmem usage
 using namespace virtmem;
 
-// Create virtual a memory allocator that uses SD card (with FAT filesystem) as virtual memory pool
+// Create virtual a memory allocator that uses SD card (with FAT32 filesystem) as virtual memory pool
 // The default memory pool size (1 MB) is used.
-SDVAlloc valloc;
-
-SdFat sd;
+SDVAlloc vAlloc(VIRTMEM_DEFAULT_POOLSIZE, 9, SPI_FULL_SPEED);
 
 struct MyStruct { int x, y; };
 
 void setup()
 {
-    // Initialize SdFatlib
-    if (!sd.begin(9, SPI_FULL_SPEED))
-        sd.initErrorHalt();
-
-    valloc.start(); // Always call this to initialize the allocator before using it
+    vAlloc.start(); // Always call this to initialize the allocator before using it
 
     // Allocate a char buffer of 10000 bytes in virtual memory and store the address to a virtual pointer
-    VPtr<char, SDVAlloc> str = valloc.alloc<char>(10000);
+    VPtr<char, SDVAlloc> str = vAlloc.alloc<char>(10000);
 
     // Set the first 1000 bytes to 'A'
     memset(str, 'A', 1000);
@@ -59,7 +53,7 @@ void setup()
     str[1] = 'B';
 
     // Own types (structs/classes) also work.
-    VPtr<MyStruct, SDVAlloc> ms = valloc.alloc<MyStruct>(); // alloc call without parameters: use automatic size deduction
+    VPtr<MyStruct, SDVAlloc> ms = vAlloc.alloc<MyStruct>(); // alloc call without parameters: use automatic size deduction
     ms->x = 5;
     ms->y = 15;
 }
@@ -157,9 +151,9 @@ The following code demonstrates how to setup a virtual memory allocator:
 #include <SD.h>
 #include <alloc/sd_alloc.h>
 
-// Create a virtual memory allocator that uses SD card (with FAT filesystem) as virtual memory pool
+// Create a virtual memory allocator that uses SD card (with FAT32 filesystem) as virtual memory pool
 // The default memory pool size (defined by VIRTMEM_DEFAULT_POOLSIZE in config.h) is used.
-virtmem::SDVAlloc valloc;
+virtmem::SDVAlloc vAlloc;
 
 // ...
 
@@ -167,7 +161,7 @@ void setup()
 {
     // Initialize SdFatlib
 
-    valloc.start(); // Always call this to initialize the allocator before using it
+    vAlloc.start(); // Always call this to initialize the allocator before using it
 
     // ...
 }
@@ -186,7 +180,7 @@ pull the `virtmem` namespace in the global namespace:
 // as above ...
 
 using namespace virtmem; // pull in global namespace to shorten code
-SDVAlloc valloc;
+SDVAlloc vAlloc;
 
 // as below ...
 ~~~
@@ -212,7 +206,7 @@ memory access as possible. Here is an example:
 ~~~{.cpp}
 // define virtual pointer linked to SD fat memory
 virtmem::VPtr<int, virtmem::SDVAlloc> vptr;
-vptr = valloc.alloc<int>(); // allocate memory to store integer (size automatically deduced from type)
+vptr = vAlloc.alloc<int>(); // allocate memory to store integer (size automatically deduced from type)
 *vptr = 4;
 ~~~
 
@@ -233,7 +227,7 @@ virtmem::SDVAlloc::VPtr<int> vptr; // Same as above but shorter, C++11 only!
 Staying on C++11 support, using `auto` further reduces the syntax quite a bit:
 
 ~~~{.cpp}
-auto vptr = valloc.alloc<int>(); // Automatically deduce vptr type from alloc call, C++11 only!
+auto vptr = vAlloc.alloc<int>(); // Automatically deduce vptr type from alloc call, C++11 only!
 ~~~
 
 Memory allocation is done through the [alloc()](@ref virtmem::VAlloc::alloc)
@@ -243,7 +237,7 @@ type (`int`). If you want to allocate a different size (for instance to use the 
 as an array) then the number of bytes should be specified as the first argument to `alloc`:
 
 ~~~{.cpp}
-vptr = valloc.alloc<int>(1000 * sizeof(int)); // allocate memory to store array of 1000 integers
+vptr = vAlloc.alloc<int>(1000 * sizeof(int)); // allocate memory to store array of 1000 integers
 vptr[500] = 1337;
 ~~~
 
@@ -253,7 +247,7 @@ work with custom types (structs/classes):
 ~~~{.cpp}
 struct MyStruct { int x, y; };
 // ...
-virtmem::VPtr<MyStruct, virtmem::SDVAlloc> vptr = valloc.alloc<MyStruct>();
+virtmem::VPtr<MyStruct, virtmem::SDVAlloc> vptr = vAlloc.alloc<MyStruct>();
 ms->x = 5;
 ms->y = 15;
 ~~~
@@ -262,7 +256,7 @@ Note that there are a few imitations when using structs (or classes) with `virtm
 Finally, to free memory the [free()](@ref virtmem::VAlloc::free) function can be used:
 
 ~~~{.cpp}
-valloc.free(vptr); // memory size is automatically deduced
+vAlloc.free(vptr); // memory size is automatically deduced
 ~~~
 
 @sa
@@ -309,7 +303,7 @@ To create a lock to virtual memory the virtmem::VPtrLock class is used:
 
 ~~~{.cpp}
 typedef virtmem::VPtr<char, virtmem::SDVAlloc> virtCharPtr; // shortcut
-virtCharPtr vptr = valloc.alloc<char>(100); // allocate some virtual memory
+virtCharPtr vptr = vAlloc.alloc<char>(100); // allocate some virtual memory
 virtmem::VPtrLock<virtCharPtr> lock = virtmem::makeVirtPtrLock(vptr, 100, false);
 memset(*lock, 10, 100); // set all bytes to '10'
 ~~~
@@ -338,7 +332,7 @@ typedef virtmem::VPtr<char, virtmem::SDVAlloc> virtCharPtr; // shortcut
 const int size = 10000;
 int sizeleft = size;
 
-virtCharPtr vptr = valloc.alloc(size); // allocate a large block of virtual memory
+virtCharPtr vptr = vAlloc.alloc(size); // allocate a large block of virtual memory
 virtCharPtr p = vptr;
 
 while (sizeleft)
@@ -473,7 +467,7 @@ struct MyStruct
 // ...
 
 // allocate MyStruct in virtual memory
-VPtr<MyStruct, SDVAlloc> sptr = valloc.alloc<MyStruct>();
+VPtr<MyStruct, SDVAlloc> sptr = vAlloc.alloc<MyStruct>();
 sptr->buffer[512] = 'B'; // assign some random value
 ~~~
 
@@ -498,10 +492,10 @@ struct MyStruct
 // ...
 
 // allocate MyStruct in virtual memory
-VPtr<MyStruct, SDVAlloc> sptr = valloc.alloc<MyStruct>();
+VPtr<MyStruct, SDVAlloc> sptr = vAlloc.alloc<MyStruct>();
 
 // ... and allocate buffer
-sptr->buffer = valloc.alloc<char>(1024);
+sptr->buffer = vAlloc.alloc<char>(1024);
 
 sptr->buffer[512] = 'B'; // assign some random value
 ~~~
@@ -637,7 +631,7 @@ using namespace virtmem;
 // ...
 
 char buffer[128];
-VPtr<char, SDVAlloc> vbuffer = valloc.alloc<char>(128);
+VPtr<char, SDVAlloc> vbuffer = vAlloc.alloc<char>(128);
 
 int *ibuf = (int *)buffer; // or reinterpret_cast<int *>(buffer);
 VPtr<int, SDVAlloc> vibuf = (VPtr<int, SDVAlloc>)vbuffer; // or static_cast<VPtr<int, SDVAlloc> >(vbuffer);
@@ -663,9 +657,9 @@ virtmem::SDVAlloc::VPtr<int> intVPtr;
 
 The new `auto` keyword support means that we can further reduce the syntax quite a bit:
 ~~~{.cpp}
-virtmem::SDVAlloc valloc;
+virtmem::SDVAlloc vAlloc;
 //...
-auto intVPtr = valloc.alloc<int>(); // automatically deduce correct type from allocation call
+auto intVPtr = vAlloc.alloc<int>(); // automatically deduce correct type from allocation call
 ~~~
 
 Another, small feature with C++11 support, is that `nullptr` can be used to assign a zero address to
@@ -718,22 +712,22 @@ For more information, please see the documentation about the [serial alloactor](
 All allocators are [template classes](https://isocpp.org/wiki/faq/templates). This was mainly done
 so that memory page settings [can be configured](@ref aConfigAlloc), for instance:
 ~~~{.cpp}
-virtmem::SDVAllocP<AllocProperties> valloc;
+virtmem::SDVAllocP<AllocProperties> vAlloc;
 ~~~
 
 However, often we don't need to configure anything, and the default is fine:
 ~~~{.cpp}
-virtmem::SDVAllocP<virtmem::DefaultAllocProperties> valloc; // default
+virtmem::SDVAllocP<virtmem::DefaultAllocProperties> vAlloc; // default
 ~~~
 
 We don't actually have to specify virtmem::DefaultAllocProperties to stay with defaults:
 ~~~{.cpp}
-virtmem::SDVAllocP<> valloc; // as above
+virtmem::SDVAllocP<> vAlloc; // as above
 ~~~
 
 To shorten it further, the 'non P' allocator shortcuts were made:
 ~~~{.cpp}
-virtmem::SDVAlloc valloc; // as above, but no need for '<>'
+virtmem::SDVAlloc vAlloc; // as above, but no need for '<>'
 ~~~
 
 Note that allocators such as virtmem::MultiSPIRAMVAllocP always require template parameters, hence, only

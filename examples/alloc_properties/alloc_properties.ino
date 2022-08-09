@@ -11,8 +11,7 @@
  * way.
  *
  * Requirements:
- *  - the SdFat library should be installed (https://github.com/greiman/SdFat)
- *  - an FAT formatted SD card
+ *  - a FAT32 formatted SD card (SDHC recommended)
  *  - a connection to the SD card via SPI
  */
 
@@ -43,8 +42,7 @@ struct AllocProperties
 
 typedef SDVAllocP<AllocProperties> Alloc; // shortcut
 
-SdFat sd;
-Alloc sdvalloc(poolSize);
+Alloc sdvAlloc(poolSize);
 
 // rest is more or less the same as sd_simple example
 // ...
@@ -59,11 +57,7 @@ void setup()
 
     Serial.begin(115200);
 
-    // initialize SdFat library: this should be done before starting the allocator!
-    if (!sd.begin(chipSelect, spiSpeed))
-        sd.initErrorHalt();
-
-    sdvalloc.start();
+    sdvAlloc.start();
 
     delay(3000); // add some delay so the user can connect with a serial terminal
 }
@@ -71,12 +65,12 @@ void setup()
 void loop()
 {
     // allocate some integer on virtual memory
-    VPtr<int, Alloc> vpi = sdvalloc.alloc<int>();
+    VPtr<int, Alloc> vpi = sdvAlloc.alloc<int>();
 
     *vpi = 42; // assign some value, just like a regular pointer!
     Serial.print("*vpi = "); Serial.println(*vpi);
 
-    sdvalloc.free(vpi); // And free the virtual memory
+    sdvAlloc.free(vpi); // And free the virtual memory
 
     delay(1000); // keep doing this with 1 second pauses inbetween...
 }

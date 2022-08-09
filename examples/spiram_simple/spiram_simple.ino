@@ -23,7 +23,7 @@ const SerialRam::ESPISpeed spiSpeed = SerialRam::SPEED_FULL;
 // pull in complete virtmem namespace
 using namespace virtmem;
 
-SPIRAMVAlloc valloc(chipSize, largeAddressing, chipSelect, spiSpeed);
+SPIRAMVAlloc vAlloc(chipSize, largeAddressing, chipSelect, spiSpeed);
 
 void setup()
 {
@@ -31,7 +31,7 @@ void setup()
         ; // wait for serial to come up
 
     Serial.begin(115200);
-    valloc.start();
+    vAlloc.start();
 
     delay(3000); // add some delay so the user can connect with a serial terminal
 }
@@ -39,12 +39,12 @@ void setup()
 void loop()
 {
     // allocate some integer on virtual memory
-    VPtr<int, SPIRAMVAlloc> vpi = valloc.alloc<int>();
+    VPtr<int, SPIRAMVAlloc> vpi = vAlloc.alloc<int>();
 
     *vpi = 42; // assign some value, just like a regular pointer!
     Serial.print("*vpi = "); Serial.println(*vpi);
 
-    valloc.free(vpi); // And free the virtual memory
+    vAlloc.free(vpi); // And free the virtual memory
 
     delay(1000); // keep doing this with 1 second pauses inbetween...
 }

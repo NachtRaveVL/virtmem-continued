@@ -18,28 +18,28 @@ const uint32_t poolSize = 1024l * 32l; // the size of the virtual memory pool (i
 // pull in complete virtmem namespace
 using namespace virtmem;
 
-SerialVAlloc valloc(poolSize); // default settings: use Serial with 115200 baudrate
+SerialVAlloc vAlloc(poolSize); // default settings: use Serial with 115200 baudrate
 
 // Example for using Serial1 with 9600 baudrate
-//SerialVAllocP<typeof(Serial1)> valloc(poolSize, 9600, Serial1);
+//SerialVAllocP<typeof(Serial1)> vAlloc(poolSize, 9600, Serial1);
 
 void setup()
 {
     while (!Serial)
         ; // wait for serial to come up
 
-    valloc.start();
+    vAlloc.start();
 }
 
 void loop()
 {
     // allocate some integer on virtual memory
-    VPtr<int, SerialVAlloc> vpi = valloc.alloc<int>();
+    VPtr<int, SerialVAlloc> vpi = vAlloc.alloc<int>();
 
     *vpi = 42; // assign some value, just like a regular pointer!
     Serial.print("*vpi = "); Serial.println(*vpi);
 
-    valloc.free(vpi); // And free the virtual memory
+    vAlloc.free(vpi); // And free the virtual memory
 
     delay(1000); // keep doing this with 1 second pauses inbetween...
 }
