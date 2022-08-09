@@ -9,17 +9,16 @@
 
 
 #include <Arduino.h>
-#include <SD.h>
 #include <virtmem-continued.h>
 #include <alloc/sd_alloc.h>
 
-// configuration for SD
-const int chipSelect = SS;
-const uint32_t poolSize = 1024l * 32l; // the size of the virtual memory pool (in bytes)
-const int spiSpeed = SPI_FULL_SPEED;
-
 // pull in complete virtmem namespace
 using namespace virtmem;
+
+// configuration for SD
+const int chipSelect = SD_CHIP_SELECT_PIN;
+const uint32_t poolSize = 1024l * 32l; // the size of the virtual memory pool (in bytes)
+const int spiSpeed = SD_SPI_SPEED;
 
 SDVAlloc sdvAlloc(poolSize, chipSelect, spiSpeed);
 

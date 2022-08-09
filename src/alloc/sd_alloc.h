@@ -6,9 +6,8 @@
   * @brief This file contains the SD virtual memory allocator
   */
 
-#include "internal/alloc.h"
-
 #include <SD.h>
+#include "internal/alloc.h"
 
 namespace virtmem {
 
@@ -24,8 +23,12 @@ typedef SDFileSystemClass SDClass;
 #endif
 #endif
 
+#ifndef SD_SPI_SPEED
 #ifndef SPI_FULL_SPEED
-#define SPI_FULL_SPEED 50000000
+#define SD_SPI_SPEED 50000000
+#else
+#define SD_SPI_SPEED SPI_FULL_SPEED
+#endif
 #endif
 
 /**
@@ -56,7 +59,7 @@ class SDVAllocP : public VAlloc<Properties, SDVAllocP<Properties> >
     String _ramFilename;
     bool _sdBegan;
 
-    void beginSD()
+    inline void beginSD()
     {
 #if defined(ESP32)
         _sdBegan = _sdClass->begin(_sdCSPin, *_spiClass, _sdSpeed);
@@ -65,6 +68,7 @@ class SDVAllocP : public VAlloc<Properties, SDVAllocP<Properties> >
 #else
         _sdBegan = _sdClass->begin(_sdSpeed, _sdCSPin);
 #endif
+        ASSERT(_sdBegan);
     }
 
     void doStart(void)
@@ -94,7 +98,6 @@ class SDVAllocP : public VAlloc<Properties, SDVAllocP<Properties> >
 
     void doRead(void *data, VPtrSize offset, VPtrSize size)
     {
-        ASSERT(_sdBegan);
 //        const uint32_t t = micros();
         _ramFile.seek(offset);
         _ramFile.read((uint8_t *)data, size);
@@ -103,7 +106,6 @@ class SDVAllocP : public VAlloc<Properties, SDVAllocP<Properties> >
 
     void doWrite(const void *data, VPtrSize offset, VPtrSize size)
     {
-        ASSERT(_sdBegan);
 //        const uint32_t t = micros();
         _ramFile.seek(offset);
         _ramFile.write((const uint8_t *)data, size);
@@ -121,7 +123,7 @@ public:
      */
     SDVAllocP(VPtrSize ps = VIRTMEM_DEFAULT_POOLSIZE,
               pintype_t sdCSPin = SD_CHIP_SELECT_PIN,
-              uint32_t sdSpeed = SPI_FULL_SPEED,
+              uint32_t sdSpeed = SD_SPI_SPEED,
 #if (!defined(NO_GLOBAL_INSTANCES) && !defined(NO_GLOBAL_SD)) || defined(SD)
               SDClass *sdClass = &SD
 #else
@@ -144,11 +146,12 @@ public:
     ~SDVAllocP(void) { doStop(); }
 
     /**
-     * Removes the temporary file used as virtual memory pool.
+     * Removes the RAM file used as virtual memory pool.
      * @note Only call this when the allocator is not initialized!
      */
-    void removeTempFile(void)
+    void removeRAMFile(void)
     {
+        ASSERT(!_ramFile);
         if (!_sdBegan) { beginSD(); }
         if (_sdBegan) { _sdClass->remove(_ramFilename.c_str()); }
     }

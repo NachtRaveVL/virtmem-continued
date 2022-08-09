@@ -17,16 +17,15 @@
 
 #include <Arduino.h>
 #include <virtmem-continued.h>
-#include <SD.h>
 #include <alloc/sd_alloc.h>
+
+// pull in complete virtmem namespace
+using namespace virtmem;
 
 // configuration for SD
 const int chipSelect = 9;
 const uint32_t poolSize = 1024l * 32l; // the size of the virtual memory pool (in bytes)
-const int spiSpeed = SPI_FULL_SPEED;
-
-// pull in complete virtmem namespace
-using namespace virtmem;
+const int spiSpeed = SD_SPI_SPEED;
 
 // struct containing the properties used to define the memory pages of an allocator.
 // Note that all variables should be static and have a large enough (integer) type to contain the

@@ -5,7 +5,7 @@
  *
  * The only requirement is that a so called 'RAM host' (for instance a PC) is
  * connected via the default serial port (Serial). The RAM host should run the
- * 'virtmem/extras/serial_host.py' Python script.
+ * 'extras/serial_host.py' Python script.
  */
 
 
@@ -13,10 +13,10 @@
 #include <virtmem-continued.h>
 #include <alloc/serial_alloc.h>
 
-const uint32_t poolSize = 1024l * 32l; // the size of the virtual memory pool (in bytes)
-
 // pull in complete virtmem namespace
 using namespace virtmem;
+
+const uint32_t poolSize = 1024l * 32l; // the size of the virtual memory pool (in bytes)
 
 SerialVAlloc vAlloc(poolSize); // default settings: use Serial with 115200 baudrate
 

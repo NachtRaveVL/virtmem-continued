@@ -8,18 +8,13 @@
 
 #include <Arduino.h>
 #include "internal/alloc.h"
-
-#include <serialram.h>
+#include "internal/serialram.h"
 
 namespace virtmem {
 
 /**
- * @brief Virtual memory allocator that uses SPI (serial) RAM (i.e. the 23LC series from Microchip)
- * as memory pool.
- *
- * This class uses an external SRAM chip as a memory pool. Interfacing occurs through the
- * [serialram library](https://github.com/rhelmus/serialram) and must be installed in order to use
- * this allocator.
+ * @brief Virtual memory allocator that uses SPI (serial) RAM (e.g. the 23LC/23K series from Microchip)
+ * as memory pool. Interfacing occurs through the internal serialram library.
  *
  * @tparam Properties Allocator properties, see DefaultAllocProperties
  *
@@ -105,13 +100,12 @@ struct SPIRamConfig
 };
 
 /**
- * @brief Virtual allocator that uses multiple SRAM chips (i.e. 23LC series from Microchip)
+ * @brief Virtual allocator that uses multiple SRAM chips (e.g. 23LC/23K series from Microchip)
  * as memory pool.
- *
- * This allocator is similar to SPIRAMVAlloc, but combines multiple SRAM chips as
- * one large memory pool. Interfacing occurs through the
- * [serialram library](https://github.com/rhelmus/serialram) and must be installed in order to use
- * this allocator. Every SRAM chip is configured by defining an SPIRamConfig array:
+ * 
+ * This allocator is similar to SPIRAMVAlloc, but combines multiple SRAM chips as one large memory pool.
+ * Interfacing occurs through the internal serialram library. Every SRAM chip is configured by defining
+ * an SPIRamConfig array:
  *
  * @code{.cpp}
  * // configuration for two 23LC1024 chips, connected to CS pins 9 and 10.
@@ -125,9 +119,6 @@ struct SPIRamConfig
  * @tparam SPIChips An array of SPIRamConfig that is used to configure each individual SRAM chip.
  * @tparam chipAmount Amount of SRAM chips to be used.
  * @tparam Properties Allocator properties, see DefaultAllocProperties
- *
- * @note The `serialram` library needs to be initialized (i.e. by calling CSerial::begin()) *before*
- * initializing this allocator.
  * @sa @ref bUsing, SPIRamConfig and SPIRAMVAllocP
  *
  */

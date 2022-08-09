@@ -1,5 +1,5 @@
-#ifndef VIRTMEM_VIRTMEM_H
-#define VIRTMEM_VIRTMEM_H
+#ifndef VIRTMEM_H
+#define VIRTMEM_H
 
 #include "config/config.h"
 #include "internal/utils.h"
@@ -14,4 +14,4 @@
   @brief contains all code from virtmem
 */
 
-#endif // VIRTMEM_VIRTMEM_H
+#endif // VIRTMEM_H

@@ -22,7 +22,7 @@ namespace virtmem {
  * allocator requires no extra hardware (besides a serial connection), it is easy to test
  * and a good starting point and generally useful for debugging. The device that provides
  * the RAM (the _RAM host_) should run a script (`serial_host.py`) that is responsible for
- * communicating with `virtmem` and memory management.
+ * communicating with `virtmem-continued` and memory management.
  *
  * __Choosing a serial port__
  *
@@ -54,10 +54,10 @@ namespace virtmem {
  *
  * A special [Python](https://www.python.org/) script needs to be run on the RAM host
  * (PC, ARM board etc.) that communicates with the Arduino code. This script allocates a
- * buffer that is sufficient in size to act as RAM for the code running `virtmem`. Both this
+ * buffer that is sufficient in size to act as RAM for the code running `virtmem-continued`. Both this
  * script and SerialVAlloc::start will block and wait until a connection is established between the two.
  *
- * The serial script is stored in `virtmem/extras/serial_host.py`, and requires Python 3 as well
+ * The serial script is stored in `extras/serial_host.py`, and requires Python 3 as well
  * as the [pyserial module](https://pythonhosted.org/pyserial/).
  *
  * Running the script with the `-h` (or `--help`) option will display the available
@@ -77,7 +77,7 @@ usage: serial_host.py [-h] [-p PORT] [-b BAUD] [-l PASSDEV] [-r PASSBAUD]
                        115200
  @endverbatim
  * The port (`-p` or `--port` option) should be set to the serial port connected
- * to the MCU running `virtmem` (e.g. /dev/ttyACM0, COM3 etc). The baudrate
+ * to the MCU running `virtmem-continued` (e.g. /dev/ttyACM0, COM3 etc). The baudrate
  * (`-b` or `--baud` option) should match the configured baudrate of the allocator
  * (see SerialVAlloc::SerialVAllocP and SerialVAlloc::setBaudRate).
  *
@@ -109,7 +109,7 @@ usage: serial_host.py [-h] [-p PORT] [-b BAUD] [-l PASSDEV] [-r PASSBAUD]
  * is simply printed to the terminal running `serial_host.py`.
  *
  * Dealing with user input, however, is more tricky. Any text that is typed in the terminal running
- * `serial_host.py` is still sent to the MCU running `virtmem`. To retrieve it, the
+ * `serial_host.py` is still sent to the MCU running `virtmem-continued`. To retrieve it, the
  * SerialVAllocP::input class must be used:
  * @code{.cpp}
  * SerialVAlloc vAlloc;

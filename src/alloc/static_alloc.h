@@ -9,7 +9,6 @@
 // allocator using static array; for testing
 
 #include <string.h>
-
 #include "internal/alloc.h"
 
 namespace virtmem {

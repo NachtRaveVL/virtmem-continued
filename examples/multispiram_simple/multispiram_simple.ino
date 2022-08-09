@@ -1,18 +1,15 @@
 /*
  * Minimal example showing how to use the multi SPI RAM virtual memory allocator
- * (MultiSPIRAMVAllocP). The 23LC series from Microchip are supported. In this example
+ * (MultiSPIRAMVAllocP). The 23LC/23K series from Microchip are supported. In this example
  * two chips are used. The total memory of both chips will be combined by the allocator.
  *
  * Requirements:
- *  - the serialram library should be installed (https://github.com/rhelmus/serialram)
  *  - two SRAM chips should be properly connected with SPI (the CS pins are configured below)
  */
 
 
 #include <Arduino.h>
 #include <virtmem-continued.h>
-#include <SPI.h>
-#include <serialram.h>
 #include <alloc/spiram_alloc.h>
 
 // pull in complete virtmem namespace

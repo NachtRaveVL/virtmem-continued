@@ -8,7 +8,6 @@
 
 #include "internal/alloc.h"
 #include "config/config.h"
-
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>

@@ -5,24 +5,20 @@ Manual
 
 
 # Introduction {#intro}
-`virtmem` is an Arduino library that allows your project to easily use an
-external memory source to extend the (limited) amount of available RAM. This
-library supports several memory resources, for instance, SPI ram (e.g. the
-`23LC1024` chip from Microchip), an SD card or even a computer connected via a
-serial connection. The library is made in such a way that managing and using
-this _virtual memory_ closely resembles working with data from 'normal' memory.
+`virtmem-continued` is an Arduino library that allows your project to easily use an external memory source to extend the (limited) amount of available RAM. This library supports several memory resources, for instance, SPI ram (e.g. the `23LC1024` or `23K256` chip from Microchip), an SD card or even a computer connected via a serial connection. The library is made in such a way that managing and using this _virtual memory_ closely resembles working with data from 'normal' memory.
 
 # Features {#features}
 * Extend the available memory with kilobytes, megabytes or even gigabytes
-* Supports SPI RAM (23LC series from Microchip), SD cards and RAM from a computer connected through serial
+* Supports SPI RAM (23LC/23K series from Microchip), SD cards and RAM from a computer connected through serial
 * Easy C++ interface that closely resembles regular data access
 * Memory page system to speed up access to virtual memory
 * New memory interfaces can be added easily
-* Code is mostly platform independent and can fairly easy be ported to other
-plaforms (x86 port exists for debugging)
+* Code is mostly platform independent and can fairly easy be ported to other plaforms (x86 port exists for debugging)
+* SDVAlloc now works with standard platform SD library (no more outdated SdFat)
+* Now includes a copy of the serialram library (no separate library include)
 
 # Demonstration {#demo}
-Before delving into specifics, here is a simple example to demonstrate how `virtmem` works and what it can do.
+Before delving into specifics, here is a simple example to demonstrate how `virtmem-continued` works and what it can do.
 
 ~~~{.cpp}
 #include <Arduino.h>
@@ -73,7 +69,7 @@ More examples can be found on the <a href="examples.html">examples page</a>.
 # Basics {#basics}
 
 ## Virtual memory {#bVirtmem}
-As the name suggests, `virtmem` works similar to [virtual memory management found on computers](https://en.wikipedia.org/wiki/Virtual_memory).
+As the name suggests, `virtmem-continued` works similar to [virtual memory management found on computers](https://en.wikipedia.org/wiki/Virtual_memory).
 
 The library uses a _paging system_ to work efficiently with virtual memory. A
 _memory page_ is a static buffer that resides in regular RAM and contains a
@@ -103,8 +99,6 @@ Because memory pages reside in regular RAM, (repeated) data access to paged
 memory is quite fast.
 
 ## Installation and File structure {#bStructure}
-The `virtmem/` subdirectory contains all the code needed to compile Arduino sketches, and
-should therefore be copied [as any other library](https://www.arduino.cc/en/Guide/Libraries).
 The file layout follows the [new Arduino library specification](https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5:-Library-specification).
 
 Other files include documentation and code for testing the library, and are not needed for compilation.
@@ -112,17 +106,16 @@ A summarized overview is given below.
 
 Directory | Contents
 --------- | --------
-\<root\> | Internal development and some docs
 benchmark/ | Internal code for benchmarking
 doc/ | Files used for Doxygen created documentation
 doc/html/ | This manual
 gtest/ and test/ | Code for internal testing
-virtmem/ | Library code. **This directory needs to be copied to your libraries folder**.
-virtmem/extras/ | Contains python scripts needed for [the serial memory allocator](@ref virtmem::SerialVAlloc).
+src/ | Library code.
+extras/ | Contains python scripts needed for [the serial memory allocator](@ref virtmem::SerialVAlloc).
 
 ## Using virtual memory (tutorial) {#bUsing}
 
-Virtual memory in `virtmem` is managed by a virtual memory allocator. These are
+Virtual memory in `virtmem-continued` is managed by a virtual memory allocator. These are
 C++ template classes which are responsible for allocating and releasing virtual
 memory and contain the datablocks utilized for memory pages. Most of this
 functionality is defined in the virtmem::BaseVAlloc and
@@ -132,13 +125,13 @@ to deal with virtual memory (e.g. reading and writing data). For example, the
 class virtmem::SDVAlloc implements an allocator that uses an SD
 card as a virtual memory pool.
 
-The `virtmem` library supports the following allocators:
+The `virtmem-continued` library supports the following allocators:
 Allocator | Description | Header
 ----------|-------------|--------
 virtmem::SDVAllocP | Uses a FAT32 formatted SD card as memory pool. Uses platform SD library. | \c \#include <alloc/sd_alloc.h>
-virtmem::SPIRAMVAllocP | Uses SPI ram (Microchip's 23LC series) as memory pool. Requires [serialram library](https://github.com/rhelmus/serialram). | \c \#include <alloc/spiram_alloc.h>
+virtmem::SPIRAMVAllocP | Uses SPI ram (Microchip's 23LC/23K series) as memory pool. Uses internal serialram library. | \c \#include <alloc/spiram_alloc.h>
 virtmem::MultiSPIRAMVAllocP | Like virtmem::SPIRAMVAlloc, but supports multiple memory chips. | \c \#include <alloc/spiram_alloc.h>
-virtmem::SerialVAllocP | Uses RAM from a computer connected through serial as memory pool. The computer should run the `virtmem/extras/serial_host.py` Python script. | \c \#include <alloc/serial_alloc.h>
+virtmem::SerialVAllocP | Uses RAM from a computer connected through serial as memory pool. The computer should run the `extras/serial_host.py` Python script. | \c \#include <alloc/serial_alloc.h>
 virtmem::StaticVAllocP | Uses regular RAM as memory pool (for debugging). | \c \#include <alloc/static_alloc.h>
 virtmem::StdioVAllocP | Uses files through regular stdio functions as memory pool (for debugging purposes on PCs). | \c \#include <alloc/stdio_alloc.h>
 
@@ -165,11 +158,11 @@ void setup()
 }
 ~~~
 
-To use the `virtmem` library you should include the `virtmem-continued.h` header file. Furthermore, the specific
+To use the `virtmem-continued` library you should include the `virtmem-continued.h` header file. Furthermore, the specific
 header file of the allocator has to be included (alloc/sd_alloc.h, see table above). Finally, since some allocators
 depend on other libraries, they also may need to be included (SD.h in this example).
 
-All classes, functions etc. of the `virtmem` library resides in the [virtmem namespace](@ref virtmem).
+All classes, functions etc. of the `virtmem-continued` library resides in the [virtmem namespace](@ref virtmem).
 If you are unfamiliar with namespaces, you can find some info [here](http://www.cplusplus.com/doc/tutorial/namespaces/).
 This is purely for 'organizational purposes', however, for small programs it may be easier to simply
 pull the `virtmem` namespace in the global namespace:
@@ -249,7 +242,7 @@ virtmem::VPtr<MyStruct, virtmem::SDVAlloc> vptr = vAlloc.alloc<MyStruct>();
 ms->x = 5;
 ms->y = 15;
 ~~~
-Note that there are a few imitations when using structs (or classes) with `virtmem`. For details: see virtmem::VPtr.
+Note that there are a few imitations when using structs (or classes) with `virtmem-continued`. For details: see virtmem::VPtr.
 
 Finally, to free memory the [free()](@ref virtmem::VAlloc::free) function can be used:
 
@@ -286,7 +279,7 @@ Each virtual data lock will essentially block a memory page. Since the number
 of memory pages is rather small, care should be taken to not to create too many
 different data locks.
 
-To decrease the likelyhood of running out of free memory pages, `virtmem`
+To decrease the likelyhood of running out of free memory pages, `virtmem-continued`
 supports two additional sets of smaller memory pages which are specifically
 used for data locking. They are much smaller in size, so they will not use a
 large deal of RAM, while still providing extra capacity for smaller data locks.
@@ -346,7 +339,7 @@ while (sizeleft)
 }
 
 ~~~
-Note that a `memset` overload is provided by `virtmem` which works with virtual pointers.
+Note that a `memset` overload is provided by `virtmem-continued` which works with virtual pointers.
 
 After you are finished working with a virtual memory lock it has to be
 released. This can be done manually with the virtmem::VPtrLock::unlock
@@ -362,10 +355,10 @@ scope at the end of every iteration.
 @note This section is mostly theoretical. If you are skimming this manual (or
 lazy), you can skip this section.
 
-Whenever virtual data is accessed, `virtmem` first has to make sure that this
+Whenever virtual data is accessed, `virtmem-continued` first has to make sure that this
 data resides in regular RAM (i.e. a memory page). In addition, if the data is
-changed, `virtmem` has to flag this data as 'dirty' so that it will be
-synchronized during the next page swap. To achieve these tasks, `virtmem`
+changed, `virtmem-continued` has to flag this data as 'dirty' so that it will be
+synchronized during the next page swap. To achieve these tasks, `virtmem-continued`
 returns a _proxy class_ whenever a virtual pointer is dereferenced, instead of
 returning the actual data. This proxy class (virtmem::VPtr::ValueWrapper)
 acts as it is the actual data, and is mostly invisible to the user:
@@ -379,7 +372,7 @@ The first line of the above example demonstrates a read operation: in this case
 the proxy class (returned by `*myIntVPtr`) will be converted to an int
 (automatic type cast), during which it will return a copy the data from virtual
 memory. The second line is a write operation: here the proxy class signals
-`virtmem` that data is changed and needs to be synchronized during the next
+`virtmem-continued` that data is changed and needs to be synchronized during the next
 page swap.
 
 For accessing data members of structures (everything discussed here also
@@ -560,9 +553,9 @@ intvptr = virtmem::getMembrPtr(mystruct, &myStruct::x);
 ## Overloads of some common C library functions for virtual pointers {#aCoverloads}
 
 Overloads of some common C functions for dealing with memory and strings are
-provided by `virtmem`. They accept virtual pointers or a mix of virtual and
+provided by `virtmem-continued`. They accept virtual pointers or a mix of virtual and
 regular pointers as function arguments. Please note that they are defined in the
-[virtmem namespace](@ref virtmem) like any other code from `virtmem`, hence, they will
+[virtmem namespace](@ref virtmem) like any other code from `virtmem-continued`, hence, they will
 not "polute" the global namespace unless you want to (i.e. by using the `using`
 directive).
 
@@ -638,7 +631,7 @@ VPtr<int, SDVAlloc> vibuf = (VPtr<int, SDVAlloc>)vbuffer; // or static_cast<VPtr
 ## C++11 support {#aCPP11Support}
 
 Some platforms such as the latest Arduino versions (>= 1.6.6) or Teensyduino support the fairly
-recent C++11 standard. In `virtmem` you can take this to your advantage to shorten the syntax,
+recent C++11 standard. In `virtmem-continued` you can take this to your advantage to shorten the syntax,
 for instance by using [template aliasing](http://en.cppreference.com/w/cpp/language/type_alias):
 
 ~~~{.cpp}
@@ -667,7 +660,7 @@ a virtual pointer.
 
 ## Shouldn't I be worried about wear leveling when using the SD allocator?
 Maybe, possibly not. A quick google reveales that most SD cards should have something called 'wear
-leveling', meaning that you probably don't have to worry about it. In any case, `virtmem` tries to
+leveling', meaning that you probably don't have to worry about it. In any case, `virtmem-continued` tries to
 reduce writes whenever possible. Furthermore, to get an indication of how much is written, have a
 look at the [statistics functions](@ref statf).
 
@@ -702,7 +695,7 @@ int a = static_cast<int>(*vptr);
 ~~~
 
 ## I am using the serial allocator and my sketch seems to be stuck!?
-The serial allocator needs to be connected with a computer which runs a script (`virtmem/extras/serial_host.py`).
+The serial allocator needs to be connected with a computer which runs a script (`extras/serial_host.py`).
 During initialization of the allocator it will wait for an connection indefinitely.
 For more information, please see the documentation about the [serial alloactor](@ref virtmem::SerialVAllocP).
 
@@ -734,7 +727,7 @@ a 'P version' exists.
 # Benchmarks {#bench}
 Some benchmarking results are shown below. Note that these numbers are generated with very simple,
 and possibly not so accurate tests, hence they should only be used as a rough indication (source
-code can be found in `virtmem/examples/benchmark`).
+code can be found in `examples/benchmark`).
 
 <table>
     <tr>

@@ -34,7 +34,7 @@
 #define SD_BUFSIZE 1024l * 12l
 #define SD_REPEATS 5
 #define SD_CSPIN 4
-#define SD_SPISPEED SPI_FULL_SPEED
+#define SD_SPISPEED SD_SPI_SPEED
 
 
 #ifdef RUN_STATICALLOC
@@ -45,7 +45,6 @@ StaticVAllocP<STATICALLOC_POOLSIZE> staticAlloc;
 #ifdef RUN_SPIRAMALLOC
 #include <SPI.h>
 #include <alloc/spiram_alloc.h>
-#include <serialram.h>
 SPIRAMVAlloc SPIRamAlloc(SPIRAM_POOLSIZE, true, SPIRAM_CSPIN, SerialRam::SPEED_FULL);
 #endif
 

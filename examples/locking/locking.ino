@@ -16,13 +16,13 @@
 #include <SD.h>
 #include <alloc/sd_alloc.h>
 
+// pull in complete virtmem namespace
+using namespace virtmem;
+
 // configuration for SD
 const int chipSelect = 4;
 const uint32_t poolSize = 1024l * 328l; // the size of the virtual memory pool (in bytes)
-const int spiSpeed = SPI_FULL_SPEED;
-
-// pull in complete virtmem namespace
-using namespace virtmem;
+const int spiSpeed = SD_SPI_SPEED;
 
 SDVAlloc sdvAlloc(poolSize, chipSelect, spiSpeed);
 

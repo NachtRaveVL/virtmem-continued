@@ -234,7 +234,7 @@ inline int strComparator(const char *p1, const char *p2, VPtrSize n, bool &done)
  * @name Overloads of C library functions for virtual pointers
  * The following functions are overloads of some common C functions for dealing with memory and strings.
  * They accept virtual pointers or a mix of virtual and regular pointers. Please note that they are
- * defined in the [virtmem namespace](@ref virtmem) like any other code from `virtmem`, hence, they will not
+ * defined in the [virtmem namespace](@ref virtmem) like any other code from `virtmem-continued`, hence, they will not
  * "polute" the global namespace unless you want to (i.e. by using the `using` directive).
  * @{
  **/

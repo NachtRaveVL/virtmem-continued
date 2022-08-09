@@ -1,27 +1,24 @@
 /*
  * Minimal example showing how to use the SPI RAM virtual memory allocator
- * (SPIRAMVAlloc/SPIRAMVAllocP). The 23LC series from Microchip are supported.
+ * (SPIRAMVAlloc/SPIRAMVAllocP). The 23LC/K series from Microchip are supported.
  *
  * Requirements:
- *  - the serialram library should be installed (https://github.com/rhelmus/serialram)
  *  - the SRAM chip should be properly connected with SPI (the CS pin is configured below)
  */
 
 
 #include <Arduino.h>
 #include <virtmem-continued.h>
-#include <SPI.h>
-#include <serialram.h>
 #include <alloc/spiram_alloc.h>
+
+// pull in complete virtmem namespace
+using namespace virtmem;
 
 // configuration of SRAM chip: a 23LC1024 chip is assumed here which has CS connected to pin 9
 const int chipSelect = 9;
 const int chipSize = 1024l * 128l; // 128 kB (=1 mbit)
 const bool largeAddressing = true; // false if chipsize <1 mbit
 const SerialRam::ESPISpeed spiSpeed = SerialRam::SPEED_FULL;
-
-// pull in complete virtmem namespace
-using namespace virtmem;
 
 SPIRAMVAlloc vAlloc(chipSize, largeAddressing, chipSelect, spiSpeed);
 

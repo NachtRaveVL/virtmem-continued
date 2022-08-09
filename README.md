@@ -2,25 +2,20 @@
 
 Original library: https://github.com/rhelmus/virtmem
 
-This version of the library is in maintenance-only mode. The intention is to continue the legacy of the original library, but made to work for modern compilation systems. No new features outside of that which the community or the original author provide are scheduled. Fixes through community pull requests are most appreciated.
+This version of the library is in maintenance-only mode. The intention is to continue the legacy of the original library, but made to work for modern compilation systems. No new features outside of that which the community or the original author provide are scheduled. Fixes through community pull requests are most appreciated. Please report bugs to issue tracker. Please no feature requests outside of pull requests.
 
 ## Introduction
-`virtmem-continued` is an Arduino library that allows your project to easily use an
-external memory source to extend the (limited) amount of available RAM. This
-library supports several memory resources, for instance, SPI ram (e.g. the
-`23LC1024` or `23K256` chip from Microchip), an SD card or even a computer connected
-via a serial connection. The library is made in such a way that managing and using
-this _virtual memory_ closely resembles working with data from 'normal' memory.
+`virtmem-continued` is an Arduino library that allows your project to easily use an external memory source to extend the (limited) amount of available RAM. This library supports several memory resources, for instance, SPI ram (e.g. the `23LC1024` or `23K256` chip from Microchip), an SD card or even a computer connected via a serial connection. The library is made in such a way that managing and using this _virtual memory_ closely resembles working with data from 'normal' memory.
 
 ## Features
-* Now works with standard SD library
 * Extend the available memory with kilobytes, megabytes or even gigabytes
-* Supports SPI RAM (23LC series from Microchip), SD cards and RAM from a computer connected through serial
+* Supports SPI RAM (23LC/23K series from Microchip), SD cards and RAM from a computer connected through serial
 * Easy C++ interface that closely resembles regular data access
 * Memory page system to speed up access to virtual memory
 * New memory interfaces can be added easily
-* Code is mostly platform independent and can fairly easy be ported to other
-plaforms (x86 port exists for debugging)
+* Code is mostly platform independent and can fairly easy be ported to other plaforms (x86 port exists for debugging)
+* SDVAlloc now works with standard platform SD library (no more outdated SdFat)
+* Now includes a copy of the serialram library (no separate library include)
 
 ## Demonstration
 ~~~{.cpp}

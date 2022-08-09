@@ -22,7 +22,7 @@
   * @brief If defined, enable wrapping of regular pointers inside virtmem::VPtr.
   * @sa virtmem::VPtr::wrap
   */
-//#define VIRTMEM_WRAP_CPOINTERS
+#define VIRTMEM_WRAP_CPOINTERS
 
 /**
   * @def VIRTMEM_VIRT_ADDRESS_OPERATOR
@@ -70,6 +70,24 @@
   * old gcc versions (>= 4.5) even if C++11 is not enabled. An empty definition will disable it.
   */
 #define VIRTMEM_EXPLICIT explicit
+
+#if defined(CORE_TEENSY) && defined(__arm__)
+
+/**
+  * @def VIRTMEM_SERRAM_USESPIFIFO
+  * @brief Use SPIFIFO on Teensy 3.X boards.
+  */
+#define VIRTMEM_SERRAM_USESPIFIFO
+
+/**
+  * @def VIRTMEM_SERRAM_USENODATASWAP
+  * @brief If using SPIFIFO, do not reverse byte order to speed up reads.
+  * Enabling this might be useful if you plan to use the RAM with other code.
+  * Disabled this doesn't work with swapping.
+  */
+#define VIRTMEM_SERRAM_USENODATASWAP
+
+#endif // if defined(CORE_TEENSY) && defined(__arm__)
 
 namespace virtmem {
 
