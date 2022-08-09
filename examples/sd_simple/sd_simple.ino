@@ -1,6 +1,6 @@
 /*
  * Minimal example showing how to use the SD virtual memory allocator
- * (SDVAlloc/SDVAllocP). This allocator uses a file on a FAT formatted SD card as RAM.
+ * (SDVAlloc/SDVAllocP). This allocator uses a file on a FAT32 formatted SD card as RAM.
  *
  * Requirements:
  *  - a FAT32 formatted SD card (SDHC recommended)

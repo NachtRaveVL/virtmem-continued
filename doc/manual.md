@@ -135,7 +135,7 @@ card as a virtual memory pool.
 The `virtmem` library supports the following allocators:
 Allocator | Description | Header
 ----------|-------------|--------
-virtmem::SDVAllocP | Uses a FAT formatted SD card as memory pool. Requires [SD fat library](https://github.com/greiman/SdFat). | \c \#include <alloc/sd_alloc.h>
+virtmem::SDVAllocP | Uses a FAT32 formatted SD card as memory pool. Uses platform SD library. | \c \#include <alloc/sd_alloc.h>
 virtmem::SPIRAMVAllocP | Uses SPI ram (Microchip's 23LC series) as memory pool. Requires [serialram library](https://github.com/rhelmus/serialram). | \c \#include <alloc/spiram_alloc.h>
 virtmem::MultiSPIRAMVAllocP | Like virtmem::SPIRAMVAlloc, but supports multiple memory chips. | \c \#include <alloc/spiram_alloc.h>
 virtmem::SerialVAllocP | Uses RAM from a computer connected through serial as memory pool. The computer should run the `virtmem/extras/serial_host.py` Python script. | \c \#include <alloc/serial_alloc.h>
@@ -159,8 +159,6 @@ virtmem::SDVAlloc vAlloc;
 
 void setup()
 {
-    // Initialize SdFatlib
-
     vAlloc.start(); // Always call this to initialize the allocator before using it
 
     // ...

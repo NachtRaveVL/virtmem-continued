@@ -31,17 +31,14 @@ typedef SDFileSystemClass SDClass;
 /**
  * @brief Virtual memory allocator class that uses SD card as virtual pool
  *
- * This class uses a file on an FAT formatted SD card as virtual memory pool. The
- * [SD FAT library](https://github.com/greiman/SdFat) is used to interface with the SD card
- * and therefore has to be installed.
+ * This class uses a file on a FAT32 formatted SD card as virtual memory pool. The
+ * platform SD library is used to interface with the SD card.
  *
  * When the allocator is initialized (i.e. by calling start()) it will create a file called
  * 'ramfile.vm' in the root directory. Existing files will be reused and resized if necessary.
  *
  * @tparam Properties Allocator properties, see DefaultAllocProperties
  *
- * @note The SD FAT library needs to be initialized (i.e. by calling SdFat::begin()) *before*
- * initializing this allocator.
  * @sa @ref bUsing, SDVAlloc
  */
 template <typename Properties=DefaultAllocProperties>
@@ -114,7 +111,7 @@ class SDVAllocP : public VAlloc<Properties, SDVAllocP<Properties> >
     }
 
 public:
-    /** Constructs (but not initializes) the SD FAT allocator.
+    /** Constructs (but not initializes) the SD FAT32 allocator.
      * @param ps The size of the virtual memory pool
      * @param sdCSPin The CS pin of the SD card
      * @param sdSpeed The speed of the SPI connection (except Teensy)
