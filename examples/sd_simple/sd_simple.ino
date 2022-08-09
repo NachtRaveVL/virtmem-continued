@@ -10,20 +10,19 @@
 
 
 #include <Arduino.h>
-#include <virtmem.h>
-#include <SdFat.h>
+#include <SD.h>
+#include <virtmem-continued.h>
 #include <alloc/sd_alloc.h>
 
 // configuration for SD
-const int chipSelect = 9;
+const int chipSelect = SS;
 const uint32_t poolSize = 1024l * 32l; // the size of the virtual memory pool (in bytes)
 const int spiSpeed = SPI_FULL_SPEED;
 
 // pull in complete virtmem namespace
 using namespace virtmem;
 
-SdFat sd;
-SDVAlloc valloc(poolSize);
+SDVAlloc sdvalloc(poolSize, chipSelect, spiSpeed);
 
 void setup()
 {
@@ -35,11 +34,7 @@ void setup()
 
     Serial.begin(115200);
 
-    // initialize SdFat library: this should be done before starting the allocator!
-    if (!sd.begin(chipSelect, spiSpeed))
-        sd.initErrorHalt();
-
-    valloc.start();
+    sdvalloc.start();
 
     delay(3000); // add some delay so the user can connect with a serial terminal
 }
@@ -47,12 +42,12 @@ void setup()
 void loop()
 {
     // allocate some integer on virtual memory
-    VPtr<int, SDVAlloc> vpi = valloc.alloc<int>();
+    VPtr<int, SDVAlloc> vpi = sdvalloc.alloc<int>();
 
     *vpi = 42; // assign some value, just like a regular pointer!
     Serial.print("*vpi = "); Serial.println(*vpi);
 
-    valloc.free(vpi); // And free the virtual memory
+    sdvalloc.free(vpi); // And free the virtual memory
 
     delay(1000); // keep doing this with 1 second pauses inbetween...
 }

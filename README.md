@@ -24,8 +24,8 @@ plaforms (x86 port exists for debugging)
 # Demonstration
 ~~~{.cpp}
 #include <Arduino.h>
-#include <SdFat.h>
-#include <virtmem.h>
+#include <SD.h>
+#include <virtmem-continued.h>
 #include <alloc/sd_alloc.h>
 
 // Simplify virtmem usage

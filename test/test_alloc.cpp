@@ -1,4 +1,4 @@
-#include "virtmem.h"
+#include "virtmem-continued.h"
 #include "alloc/stdio_alloc.h"
 #include "test.h"
 

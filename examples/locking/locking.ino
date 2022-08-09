@@ -13,8 +13,8 @@
  */
 
 #include <Arduino.h>
-#include <virtmem.h>
-#include <SdFat.h>
+#include <virtmem-continued.h>
+#include <SD.h>
 #include <alloc/sd_alloc.h>
 
 // configuration for SD
@@ -26,7 +26,7 @@ const int spiSpeed = SPI_FULL_SPEED;
 using namespace virtmem;
 
 SdFat sd;
-SDVAlloc valloc(poolSize);
+SDVAlloc sdvalloc(poolSize);
 
 void setup()
 {
@@ -42,7 +42,7 @@ void setup()
     if (!sd.begin(chipSelect, spiSpeed))
         sd.initErrorHalt();
 
-    valloc.start();
+    sdvalloc.start();
 
     delay(3000); // add some delay so the user can connect with a serial terminal
 
@@ -52,7 +52,7 @@ void setup()
 void loop()
 {
     // allocate a string in virtual memory
-    VPtr<char, SDVAlloc> vstr = valloc.alloc<char>(128);
+    VPtr<char, SDVAlloc> vstr = sdvalloc.alloc<char>(128);
 
     strcpy(vstr, "hello (virtual) world!");
 
@@ -83,7 +83,7 @@ void loop()
 
     Serial.println(""); // end with a newline
 
-    valloc.free(vstr); // And free the virtual memory
+    sdvalloc.free(vstr); // And free the virtual memory
 
     delay(1000); // keep doing this with 1 second pauses inbetween...
 }

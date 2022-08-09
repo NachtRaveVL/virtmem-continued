@@ -26,8 +26,8 @@ Before delving into specifics, here is a simple example to demonstrate how `virt
 
 ~~~{.cpp}
 #include <Arduino.h>
-#include <SdFat.h>
-#include <virtmem.h>
+#include <SD.h>
+#include <virtmem-continued.h>
 #include <alloc/sd_alloc.h>
 
 // Simplify virtmem usage
@@ -153,8 +153,8 @@ The following code demonstrates how to setup a virtual memory allocator:
 
 ~~~{.cpp}
 #include <Arduino.h>
-#include <virtmem.h>
-#include <SdFat.h>
+#include <virtmem-continued.h>
+#include <SD.h>
 #include <alloc/sd_alloc.h>
 
 // Create a virtual memory allocator that uses SD card (with FAT filesystem) as virtual memory pool
@@ -173,9 +173,9 @@ void setup()
 }
 ~~~
 
-To use the `virtmem` library you should include the `virtmem.h` header file. Furthermore, the specific
+To use the `virtmem` library you should include the `virtmem-continued.h` header file. Furthermore, the specific
 header file of the allocator has to be included (alloc/sd_alloc.h, see table above). Finally, since some allocators
-depend on other libraries, they also may need to be included (SdFat.h in this example).
+depend on other libraries, they also may need to be included (SD.h in this example).
 
 All classes, functions etc. of the `virtmem` library resides in the [virtmem namespace](@ref virtmem).
 If you are unfamiliar with namespaces, you can find some info [here](http://www.cplusplus.com/doc/tutorial/namespaces/).

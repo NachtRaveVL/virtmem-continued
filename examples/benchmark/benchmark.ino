@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <virtmem.h>
+#include <virtmem-continued.h>
 #include "benchmark.h"
 
 //#define RUN_STATICALLOC
@@ -55,7 +55,7 @@ SerialVAlloc serialRamAlloc(SERIALRAM_POOLSIZE, /*115200*/1000000);
 #endif
 
 #ifdef RUN_SDALLOC
-#include <SdFat.h>
+#include <SD.h>
 #include <alloc/sd_alloc.h>
 SDVAlloc SDRamAlloc(SD_POOLSIZE);
 SdFat sd;

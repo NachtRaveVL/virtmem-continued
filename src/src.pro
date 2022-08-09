@@ -15,7 +15,7 @@ SOURCES += \
     utils.cpp \
 
 HEADERS += \
-    virtmem.h \
+    virtmem-continued.h \
     internal/utils.h \
     internal/base_alloc.h \
     config/config.h \

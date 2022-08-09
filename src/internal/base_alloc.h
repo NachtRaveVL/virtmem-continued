@@ -180,7 +180,7 @@ public:
     VirtPageSize getBigPageSize(void) const { return bigPages.size; } //!< Returns the size of a *big* page.
 
     /**
-     * @brief Returns the size the memory pool.
+     * @brief Returns the size of the memory pool.
      * @note Some memory is used for bookkeeping, therefore, the amount returned by this function
      * does *not* equate the amount that can be allocated.
      */

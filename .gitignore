@@ -6,4 +6,4 @@ Makefile
 src/libvirtmem.a
 test/test
 doc/html
-
+.vscode

@@ -10,7 +10,7 @@
 
 
 #include <Arduino.h>
-#include <virtmem.h>
+#include <virtmem-continued.h>
 #include <alloc/serial_alloc.h>
 
 const uint32_t poolSize = 1024l * 32l; // the size of the virtual memory pool (in bytes)
