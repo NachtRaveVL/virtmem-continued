@@ -2,17 +2,18 @@
 
 Original library: https://github.com/rhelmus/virtmem
 
-This version of the library is in maintenance-only mode. The intention is to continue the legacy of the original library, but made to work for modern compilation systems. No new features outside of that which the community or the original author provide are scheduled.
+This version of the library is in maintenance-only mode. The intention is to continue the legacy of the original library, but made to work for modern compilation systems. No new features outside of that which the community or the original author provide are scheduled. Fixes through community pull requests are most appreciated.
 
-# Introduction
-`virtmem` is an Arduino library that allows your project to easily use an
+## Introduction
+`virtmem-continued` is an Arduino library that allows your project to easily use an
 external memory source to extend the (limited) amount of available RAM. This
 library supports several memory resources, for instance, SPI ram (e.g. the
-`23LC1024` chip from Microchip), an SD card or even a computer connected via a
-serial connection. The library is made in such a way that managing and using
+`23LC1024` or `23K256` chip from Microchip), an SD card or even a computer connected
+via a serial connection. The library is made in such a way that managing and using
 this _virtual memory_ closely resembles working with data from 'normal' memory.
 
-# Features
+## Features
+* Now works with standard SD library
 * Extend the available memory with kilobytes, megabytes or even gigabytes
 * Supports SPI RAM (23LC series from Microchip), SD cards and RAM from a computer connected through serial
 * Easy C++ interface that closely resembles regular data access
@@ -21,7 +22,7 @@ this _virtual memory_ closely resembles working with data from 'normal' memory.
 * Code is mostly platform independent and can fairly easy be ported to other
 plaforms (x86 port exists for debugging)
 
-# Demonstration
+## Demonstration
 ~~~{.cpp}
 #include <Arduino.h>
 #include <SD.h>
@@ -66,10 +67,10 @@ This Arduino sketch demonstrates how to use a SD card as virtual memory
 store. By using a virtual memory pointer wrapper class, using virtual memory
 becomes quite close to using data residing in 'normal' memory.
 
-# Manual
-The manual [can be found here](http://rhelmus.github.io/virtmem/index.html).
+## Manual
+The _original_ manual [can be found here](http://rhelmus.github.io/virtmem/index.html).
 
-# Benchmark
+## Benchmark
 Some benchmarking results are shown below. Note that these numbers are generated with very simple,
 and possibly not so accurate tests, hence they should only be used as a rough indication.
 
@@ -99,4 +100,4 @@ and possibly not so accurate tests, hence they should only be used as a rough in
 Some notes:
 - Serial: Virtual means that a USB serial connection is used, which is only limited by USB speeds.
 - SD/SPI RAM: measured at maximum SPI speeds. For SPI RAM a 23LCV1024 chip was used.
-- More details in [the manual](http://rhelmus.github.io/virtmem/index.html#bench).
+- More details in [the original manual](http://rhelmus.github.io/virtmem/index.html#bench).
