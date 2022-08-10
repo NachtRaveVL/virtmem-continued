@@ -1,6 +1,8 @@
 #ifndef BENCHMARK_H
 #define BENCHMARK_H
 
+#include "internal/utils.h"
+
 using namespace virtmem;
 
 // arduino template functions must be in headers... :-(
@@ -82,7 +84,7 @@ template <typename TA> void runBenchmarks(TA &vAlloc, uint32_t bufsize, uint8_t 
 
         while (sizeleft)
         {
-            uint16_t lsize = min(vAlloc.getBigPageSize(), sizeleft);
+            uint16_t lsize = private_utils::minimal<uint32_t>(vAlloc.getBigPageSize(), sizeleft);
             VPtrLock<TVirtPtr> l = makeVirtPtrLock(p, lsize);
             lsize = l.getLockSize();
             char *b = *l;
@@ -107,7 +109,7 @@ template <typename TA> void runBenchmarks(TA &vAlloc, uint32_t bufsize, uint8_t 
 
         while (sizeleft)
         {
-            uint16_t lsize = min(vAlloc.getBigPageSize(), sizeleft);
+            uint16_t lsize = private_utils::minimal<uint32_t>(vAlloc.getBigPageSize(), sizeleft);
             VPtrLock<TVirtPtr> l = makeVirtPtrLock(p, lsize, true);
             lsize = l.getLockSize();
             char *b = *l;

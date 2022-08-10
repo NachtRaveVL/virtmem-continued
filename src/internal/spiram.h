@@ -6,6 +6,7 @@
   * @brief This file is a port of the serialram library to reduce dependency count.
   */
 
+#include <Arduino.h>
 #include <SPI.h>
 #include "config/config.h"
 
