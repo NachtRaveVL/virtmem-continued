@@ -65,6 +65,8 @@ becomes quite close to using data residing in 'normal' memory.
 ## Manual
 The _original_ manual [can be found here](http://rhelmus.github.io/virtmem/index.html).
 
+The _continued_ manual (in Doxygen format) [can be found here](https://github.com/NachtRaveVL/virtmem-continued/blob/master/doc/manual.md)
+
 ## Benchmark
 Some benchmarking results are shown below. Note that these numbers are generated with very simple,
 and possibly not so accurate tests, hence they should only be used as a rough indication.
@@ -95,4 +97,4 @@ and possibly not so accurate tests, hence they should only be used as a rough in
 Some notes:
 - Serial: Virtual means that a USB serial connection is used, which is only limited by USB speeds.
 - SD/SPI RAM: measured at maximum SPI speeds. For SPI RAM a 23LCV1024 chip was used.
-- More details in [the original manual](http://rhelmus.github.io/virtmem/index.html#bench).
+- More details in [the original manual](http://rhelmus.github.io/virtmem/index.html#bench) or [continued manual (Doxy)](https://github.com/NachtRaveVL/virtmem-continued/blob/master/doc/manual.md).

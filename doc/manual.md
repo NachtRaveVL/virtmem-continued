@@ -179,8 +179,6 @@ SDVAlloc vAlloc;
 All allocator classes are _singleton_, meaning that only one (global) instance can be defined
 (however, instances of _different_ allocators can co-exist, see @ref aMultiAlloc). Before the allocator
 can be used it should be initialized by calling its [start function](@ref virtmem::BaseVAlloc::start).
-Please note that, since this example uses the SD fat lib allocator, SD fat lib has
-to be initialized prior to the allocator (see virtmem::SDVAlloc).
 
 Two interfaces exist to actually use virtual memory.
 
@@ -195,7 +193,7 @@ classes were designed to make virtual memory access as close as 'regular'
 memory access as possible. Here is an example:
 
 ~~~{.cpp}
-// define virtual pointer linked to SD fat memory
+// define virtual pointer linked to SD card storage space
 virtmem::VPtr<int, virtmem::SDVAlloc> vptr;
 vptr = vAlloc.alloc<int>(); // allocate memory to store integer (size automatically deduced from type)
 *vptr = 4;
@@ -507,7 +505,7 @@ virtmem::VPtr<int, virtmem::SPIRAMVAlloc> spiramvptr;
 
 // ...
 
-// copy a kilobyte of data from SPI ram to a SD fat virtual memory pool
+// copy a kilobyte of data from SPI ram to a SD card based virtual memory pool
 virtmem::memcpy(fatvptr, spiramvptr, 1024);
 ~~~
 
