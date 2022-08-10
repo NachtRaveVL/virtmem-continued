@@ -15,7 +15,7 @@ Manual
 * New memory interfaces can be added easily
 * Code is mostly platform independent and can fairly easy be ported to other plaforms (x86 port exists for debugging)
 * SDVAlloc now works with standard platform SD library (no more outdated SdFat)
-* Now includes a copy of the serialram library (no separate library include)
+* Now includes an internal port of the serialram library (no separate library include)
 
 # Demonstration {#demo}
 Before delving into specifics, here is a simple example to demonstrate how `virtmem-continued` works and what it can do.
@@ -31,7 +31,7 @@ using namespace virtmem;
 
 // Create virtual a memory allocator that uses SD card (with FAT32 filesystem) as virtual memory pool
 // The default memory pool size (1 MB) is used.
-SDVAlloc vAlloc(VIRTMEM_DEFAULT_POOLSIZE, 9, SPI_FULL_SPEED);
+SDVAlloc vAlloc(VIRTMEM_DEFAULT_POOLSIZE, 9, SD_SPI_SPEED);
 
 struct MyStruct { int x, y; };
 
@@ -129,7 +129,7 @@ The `virtmem-continued` library supports the following allocators:
 Allocator | Description | Header
 ----------|-------------|--------
 virtmem::SDVAllocP | Uses a FAT32 formatted SD card as memory pool. Uses platform SD library. | \c \#include <alloc/sd_alloc.h>
-virtmem::SPIRAMVAllocP | Uses SPI ram (Microchip's 23LC/23K series) as memory pool. Uses internal serialram library. | \c \#include <alloc/spiram_alloc.h>
+virtmem::SPIRAMVAllocP | Uses SPI ram (Microchip's 23LC/23K series) as memory pool. Uses internal SPISerialRam library. | \c \#include <alloc/spiram_alloc.h>
 virtmem::MultiSPIRAMVAllocP | Like virtmem::SPIRAMVAlloc, but supports multiple memory chips. | \c \#include <alloc/spiram_alloc.h>
 virtmem::SerialVAllocP | Uses RAM from a computer connected through serial as memory pool. The computer should run the `extras/serial_host.py` Python script. | \c \#include <alloc/serial_alloc.h>
 virtmem::StaticVAllocP | Uses regular RAM as memory pool (for debugging). | \c \#include <alloc/static_alloc.h>
@@ -439,8 +439,8 @@ invalid pointer address. To avoid this, the
 [isWrapped() function](@ref virtmem::BaseVPtr::isWrapped) can be used.
 
 @note Wrapping regular pointers introduces a small overhead in usage of virtual
-pointers and is therefore **disabled by default**. This feature can be enabled
-in @ref config.h.
+pointers and is **enabled by default**. This feature can be disabled for a small
+performance boost in @ref config.h.
 
 ## Dealing with large data structures {#aLargeStructs}
 

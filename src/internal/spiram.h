@@ -1,31 +1,26 @@
-#ifndef VIRTMEM_SERRAM_H
-#define VIRTMEM_SERRAM_H
+#ifndef VIRTMEM_SPIRAM_H
+#define VIRTMEM_SPIRAM_H
 
 /**
   * @file
-  * @brief This file is a copy of the serialram library to reduce dependency count.
+  * @brief This file is a port of the serialram library to reduce dependency count.
   */
 
+#include <SPI.h>
 #include "config/config.h"
 
-#if defined(VIRTMEM_SERRAM_USESPIFIFO) && (!defined(__arm__) || !defined(CORE_TEENSY))
+#if defined(VIRTMEM_SPIRAM_USESPIFIFO) && (!defined(__arm__) || !defined(CORE_TEENSY))
 #warning SPIFIFO only for teensy arm boards
-#undef VIRTMEM_SERRAM_USESPIFIFO
+#undef VIRTMEM_SPIRAM_USESPIFIFO
 #endif
-#ifdef VIRTMEM_SERRAM_USESPIFIFO
+#ifdef VIRTMEM_SPIRAM_USESPIFIFO
 #include <SPIFIFO.h>
-#else
-#include <SPI.h>
 #endif
 
 namespace virtmem {
 
-class SerialRam
+class SPISerialRam
 {
-public:
-    enum ESPISpeed { SPEED_FULL, SPEED_HALF, SPEED_QUARTER };
-
-private:
     enum EInstruction
     {
         INSTR_READ = 0x03,
@@ -40,19 +35,24 @@ private:
         SPIFIFO_SIZE = 4
     };
 
-    bool largeAddressing;
-    uint8_t chipSelect;
-    ESPISpeed SPISpeed;
+    uint8_t _addrBytes;
+    pintype_t _sramCSPin;
+    SPISettings _spiSettings;
+#ifdef VIRTMEM_SPIRAM_USESPIFIFO
+    uint32_t _fifoSpeed;
+#endif
 
     void initTransfer(EInstruction instruction);
-    void endTransfer(void);
     inline uint8_t sendByteMore(uint8_t byte) __attribute__((always_inline));
     inline uint8_t sendByteNoMore(uint8_t byte) __attribute__((always_inline));
     void sendAddress(uint32_t address);
 
 public:
-    void begin(bool la, uint8_t pin, ESPISpeed speed);
-    void end(void) { } // UNDONE(?)
+    SPISerialRam();
+    SPISerialRam(uint32_t sramSize, pintype_t sramCSPin, uint32_t sramSpeed);
+
+    void begin();
+    void begin(uint32_t sramSize, pintype_t sramCSPin, uint32_t sramSpeed);
 
     void read(char *buffer, uint32_t address, uint32_t size);
     void write(const char *buffer, uint32_t address, uint32_t size);
@@ -60,4 +60,6 @@ public:
 
 }
 
-#endif // VIRTMEM_SERRAM_H
+#include "spiram.hpp"
+
+#endif // VIRTMEM_SPIRAM_H

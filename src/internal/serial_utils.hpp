@@ -1,5 +1,3 @@
-#include <Arduino.h>
-
 #include "serial_utils.h"
 
 //! @cond HIDDEN_SYMBOLS

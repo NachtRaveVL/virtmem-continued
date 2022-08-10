@@ -15,7 +15,7 @@ This version of the library is in maintenance-only mode. The intention is to con
 * New memory interfaces can be added easily
 * Code is mostly platform independent and can fairly easy be ported to other plaforms (x86 port exists for debugging)
 * SDVAlloc now works with standard platform SD library (no more outdated SdFat)
-* Now includes a copy of the serialram library (no separate library include)
+* Now includes an internal port of the serialram library (no separate library include)
 
 ## Demonstration
 ~~~{.cpp}

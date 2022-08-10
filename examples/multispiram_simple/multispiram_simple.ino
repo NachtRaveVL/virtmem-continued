@@ -16,11 +16,11 @@
 using namespace virtmem;
 
 // configuration for two 23LC1024 chips (128 kByte in size), CS connected to pins 9 & 10
-SPIRamConfig scfg[2] =
+SPISerialRamConfig scfg[2] =
 {
-    // format: <large adressing> (true if > 512 kbit), <size of the chip>, <CS pin>, <SPI speed>
-    { true, 1024l * 128l, 9, SerialRam::SPEED_FULL },
-    { true, 1024l * 128l, 10, SerialRam::SPEED_FULL }
+    // format: <size of the chip>, <CS pin>, <SPI speed>
+    { 1024l * 128l, 9, SRAM_SPI_SPEED },
+    { 1024l * 128l, 10, SRAM_SPI_SPEED }
 };
 
 typedef MultiSPIRAMVAllocP<scfg, 2> Alloc; // shortcut

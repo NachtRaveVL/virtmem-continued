@@ -49,12 +49,6 @@ inline void freeRam(const char *msg)
 
 namespace virtmem {
 
-#if defined(ARDUINO_ARCH_MBED)
-typedef uint32_t pintype_t;
-#else
-typedef uint8_t pintype_t;
-#endif
-
 namespace private_utils {
 
 template <typename T> T minimal(const T &v1, const T &v2) { return (v1 < v2) ? v1 : v2; }

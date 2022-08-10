@@ -16,18 +16,22 @@ typedef SDFileSystemClass SDClass;
 #endif
 
 #ifndef SD_CHIP_SELECT_PIN
-#ifndef SDCARD_SS_PIN
-#define SD_CHIP_SELECT_PIN SS
-#else
+#if defined(SDCARD_SS_PIN)
 #define SD_CHIP_SELECT_PIN SDCARD_SS_PIN
+#else
+#define SD_CHIP_SELECT_PIN SS
 #endif
 #endif
 
 #ifndef SD_SPI_SPEED
-#ifndef SPI_FULL_SPEED
-#define SD_SPI_SPEED 50000000
-#else
+#if defined(F_CPU)
+#define SD_SPI_SPEED F_CPU
+#elif defined(F_BUS)
+#define SD_SPI_SPEED F_BUS
+#elif defined(SPI_FULL_SPEED)
 #define SD_SPI_SPEED SPI_FULL_SPEED
+#else
+#define SD_SPI_SPEED 50000000
 #endif
 #endif
 

@@ -6,6 +6,8 @@
   * @brief This file contains utilities for the serial virtual memory allocator
   */
 
+#include <Arduino.h>
+
 namespace virtmem {
 
 //! @brief Contains utilities for serial allocator

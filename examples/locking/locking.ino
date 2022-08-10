@@ -20,8 +20,8 @@
 using namespace virtmem;
 
 // configuration for SD
-const int chipSelect = 4;
 const uint32_t poolSize = 1024l * 328l; // the size of the virtual memory pool (in bytes)
+const int chipSelect = 4;
 const int spiSpeed = SD_SPI_SPEED;
 
 SDVAlloc sdvAlloc(poolSize, chipSelect, spiSpeed);

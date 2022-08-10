@@ -8,13 +8,33 @@
 
 #include <Arduino.h>
 #include "internal/alloc.h"
-#include "internal/serialram.h"
+#include "internal/spiram.h"
 
 namespace virtmem {
 
+#ifndef SRAM_CHIP_SELECT_PIN
+#if defined(SRAM_SS_PIN)
+#define SRAM_CHIP_SELECT_PIN SRAM_SS_PIN
+#else
+#define SRAM_CHIP_SELECT_PIN SS
+#endif
+#endif
+
+#ifndef SRAM_SPI_SPEED
+#if defined(F_CPU)
+#define SRAM_SPI_SPEED F_CPU
+#elif defined(F_BUS)
+#define SRAM_SPI_SPEED F_BUS
+#elif defined(SPI_FULL_SPEED)
+#define SRAM_SPI_SPEED SPI_FULL_SPEED
+#else
+#define SRAM_SPI_SPEED 50000000
+#endif
+#endif
+
 /**
  * @brief Virtual memory allocator that uses SPI (serial) RAM (e.g. the 23LC/23K series from Microchip)
- * as memory pool. Interfacing occurs through the internal serialram library.
+ * as memory pool. Interfacing occurs through the internal SPISerialRam library.
  *
  * @tparam Properties Allocator properties, see DefaultAllocProperties
  *
@@ -23,32 +43,27 @@ namespace virtmem {
 template <typename Properties=DefaultAllocProperties>
 class SPIRAMVAllocP : public VAlloc<Properties, SPIRAMVAllocP<Properties> >
 {
-    bool largeAddressing;
-    uint8_t chipSelect;
-    SerialRam::ESPISpeed SPISpeed;
-    SerialRam serialRAM;
+    SPISerialRam _spiSRam;
 
     void doStart(void)
     {
-        serialRAM.begin(largeAddressing, chipSelect, SPISpeed);
+        _spiSRam.begin();
     }
 
     void doStop(void)
-    {
-        serialRAM.end();
-    }
+    { }
 
     void doRead(void *data, VPtrSize offset, VPtrSize size)
     {
 //        const uint32_t t = micros();
-        serialRAM.read((char *)data, offset, size);
+        _spiSRam.read((char *)data, offset, size);
 //        Serial.print("read: "); Serial.print(offset); Serial.print("/"); Serial.print(size); Serial.print("/"); Serial.println(micros() - t);
     }
 
     void doWrite(const void *data, VPtrSize offset, VPtrSize size)
     {
 //        const uint32_t t = micros();
-        serialRAM.write((const char *)data, offset, size);
+        _spiSRam.write((const char *)data, offset, size);
 //        Serial.print("write: "); Serial.print(offset); Serial.print("/"); Serial.print(size); Serial.print("/"); Serial.println(micros() - t);
     }
 
@@ -56,33 +71,13 @@ public:
     /**
      * @brief Constructs (but not initializes) the allocator.
      * @param ps Total amount of bytes of the memory pool (i.e. the size of the SRAM chip)
-     * @param la `true` if large addressing (chipsize >= 1mbit) should be used
      * @param cs Chip select (CS) pin connected to the SRAM chip
-     * @param s SPI speed (SerialRam::SPEED_FULL, SerialRam::SPEED_HALF or
-     * SerialRam::SPEED_QUARTER)
-     * @sa setSettings and setPoolSize
+     * @param sp SPI speed to be used in Hz
+     * @sa setPoolSize
      */
-    SPIRAMVAllocP(VPtrSize ps, bool la, uint8_t cs, SerialRam::ESPISpeed s) :
-        largeAddressing(la), chipSelect(cs), SPISpeed(s) { this->setPoolSize(ps); }
-    /**
-     * @brief Constructs (but not initializes) the allocator.
-     * @param ps Total amount of bytes of the memory pool (i.e. the size of the SRAM chip)
-     * @sa setSettings and setPoolSize
-     */
-    SPIRAMVAllocP(VPtrSize ps) { this->setPoolSize(ps); }
-    SPIRAMVAllocP(void) { } //!< Constructs (but not initializes) the allocator.
+    SPIRAMVAllocP(VPtrSize ps, pintype_t cs = SRAM_CHIP_SELECT_PIN, uint32_t sp = SRAM_SPI_SPEED) :
+        _spiSRam(ps, cs, sp) { this->setPoolSize(ps); }
     ~SPIRAMVAllocP(void) { doStop(); }
-
-    /**
-     * @brief Configures the allocator.
-     *
-     * See SPIRAMVAlloc::SPIRAMVAlloc for a description of the parameters.
-     * @note This function should only be called if the allocator is not initialized.
-     */
-    void setSettings(bool la, uint8_t cs, SerialRam::ESPISpeed s)
-    {
-        largeAddressing = la; chipSelect = cs; SPISpeed = s;
-    }
 };
 
 typedef SPIRAMVAllocP<> SPIRAMVAlloc; //!< Shortcut to SPIRAMVAllocP with default template arguments
@@ -91,12 +86,11 @@ typedef SPIRAMVAllocP<> SPIRAMVAlloc; //!< Shortcut to SPIRAMVAllocP with defaul
  * @brief This `struct` is used to configure each SRAM chip used by a MultiSPIRAMVAllocP
  * allocator.
  */
-struct SPIRamConfig
+struct SPISerialRamConfig
 {
-    bool largeAddressing; //!< Does this chip needs large addressing (`true` if size >= 1 Mbit)
     uint32_t size; //!< Amount of bytes this chip can hold
-    uint8_t chipSelect; //!< Pin assigned as chip select (CS) for this chip
-    SerialRam::ESPISpeed speed; //!< SPI speed to be used: SerialRam::SPEED_FULL, SerialRam::SPEED_HALF or SerialRam::SPEED_QUARTER
+    pintype_t chipSelect; //!< Pin assigned as chip select (CS) for this chip
+    uint32_t speed; //!< SPI speed to be used in Hz
 };
 
 /**
@@ -104,40 +98,37 @@ struct SPIRamConfig
  * as memory pool.
  * 
  * This allocator is similar to SPIRAMVAlloc, but combines multiple SRAM chips as one large memory pool.
- * Interfacing occurs through the internal serialram library. Every SRAM chip is configured by defining
- * an SPIRamConfig array:
+ * Interfacing occurs through the internal SPISerialRam library. Every SRAM chip is configured by defining
+ * an SPISerialRamConfig array:
  *
  * @code{.cpp}
  * // configuration for two 23LC1024 chips, connected to CS pins 9 and 10.
- * virtmem::SPIRamConfig scfg[2] = {
- *      { true, 1024 * 128, 9, SerialRam::SPEED_FULL },
- *      { true, 1024 * 128, 10, SerialRam::SPEED_FULL } };
+ * virtmem::SPISerialRamConfig scfg[2] = {
+ *      { 1024 * 128, 9, SRAM_SPI_SPEED },
+ *      { 1024 * 128, 10, SRAM_SPI_SPEED } };
  *
  * virtmem::MultiSPIRAMVAllocP<scfg, 2> alloc;
  * @endcode
  *
- * @tparam SPIChips An array of SPIRamConfig that is used to configure each individual SRAM chip.
+ * @tparam spiChips An array of SPISerialRamConfig that is used to configure each individual SRAM chip.
  * @tparam chipAmount Amount of SRAM chips to be used.
  * @tparam Properties Allocator properties, see DefaultAllocProperties
- * @sa @ref bUsing, SPIRamConfig and SPIRAMVAllocP
+ * @sa @ref bUsing, SPISerialRamConfig and SPIRAMVAllocP
  *
  */
-template <const SPIRamConfig *SPIChips, size_t chipAmount, typename Properties=DefaultAllocProperties>
-class MultiSPIRAMVAllocP : public VAlloc<Properties, MultiSPIRAMVAllocP<SPIChips, chipAmount, Properties> >
+template <const SPISerialRamConfig *spiChips, size_t chipAmount, typename Properties=DefaultAllocProperties>
+class MultiSPIRAMVAllocP : public VAlloc<Properties, MultiSPIRAMVAllocP<spiChips, chipAmount, Properties> >
 {
-    SerialRam serialRAM[chipAmount];
+    SPISerialRam _spiSRams[chipAmount];
 
     void doStart(void)
     {
         for (uint8_t i=0; i<chipAmount; ++i)
-            serialRAM[i].begin(SPIChips[i].largeAddressing, SPIChips[i].chipSelect, SPIChips[i].speed);
+            _spiSRams[i].begin(spiChips[i].size, spiChips[i].chipSelect, spiChips[i].speed);
     }
 
     void doStop(void)
-    {
-        for (uint8_t i=0; i<chipAmount; ++i)
-            serialRAM[i].end();
-    }
+    { }
 
     void doRead(void *data, VPtrSize offset, VPtrSize size)
     {
@@ -145,12 +136,12 @@ class MultiSPIRAMVAllocP : public VAlloc<Properties, MultiSPIRAMVAllocP<SPIChips
         VPtrNum startptr = 0;
         for (uint8_t i=0; i<chipAmount; ++i)
         {
-            const VPtrNum endptr = startptr + SPIChips[i].size;
+            const VPtrNum endptr = startptr + spiChips[i].size;
             if (offset >= startptr && offset < endptr)
             {
                 const VPtrNum p = offset - startptr; // address relative in this chip
-                const VPtrSize sz = private_utils::minimal(size, SPIChips[i].size - p);
-                serialRAM[i].read((char *)data, p, sz);
+                const VPtrSize sz = private_utils::minimal(size, spiChips[i].size - p);
+                _spiSRams[i].read((char *)data, p, sz);
 
                 if (sz == size)
                     break;
@@ -170,12 +161,12 @@ class MultiSPIRAMVAllocP : public VAlloc<Properties, MultiSPIRAMVAllocP<SPIChips
         VPtrNum startptr = 0;
         for (uint8_t i=0; i<chipAmount; ++i)
         {
-            const VPtrNum endptr = startptr + SPIChips[i].size;
+            const VPtrNum endptr = startptr + spiChips[i].size;
             if (offset >= startptr && offset < endptr)
             {
                 const VPtrNum p = offset - startptr; // address relative in this chip
-                const VPtrSize sz = private_utils::minimal(size, SPIChips[i].size - p);
-                serialRAM[i].write((const char *)data, p, sz);
+                const VPtrSize sz = private_utils::minimal(size, spiChips[i].size - p);
+                _spiSRams[i].write((const char *)data, p, sz);
 
                 if (sz == size)
                     break;
@@ -200,7 +191,7 @@ public:
     {
         uint32_t ps = 0;
         for (uint8_t i=0; i<chipAmount; ++i)
-            ps += SPIChips[i].size;
+            ps += spiChips[i].size;
         this->setPoolSize(ps);
     }
     ~MultiSPIRAMVAllocP(void) { doStop(); }

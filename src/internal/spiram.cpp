@@ -1,12 +1,11 @@
-#include "serialram.h"
+#include "spiram.h"
 
-#ifdef VIRTMEM_SERRAM_USENODATASWAP
+#ifdef VIRTMEM_SPIRAM_USENODATASWAP
 namespace {
 
 inline uint16_t getWord(uint8_t h, uint8_t l) { return h << 8 | l; }
 
 // recent teensyduino version supports toolchain with __builtin_bswap16
-// to test a recent version we just look at the gcc version
 #define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
 #if GCC_VERSION >= 40800
 inline uint16_t swapInt16(uint16_t x) { return __builtin_bswap16(x); }
@@ -20,87 +19,80 @@ inline uint16_t swapInt16(uint16_t x) { return (x >> 8) | ((x & 0xff) << 8); }
 
 namespace virtmem {
 
-void SerialRam::initTransfer(EInstruction instruction)
+void SPISerialRam::initTransfer(EInstruction instruction)
 {
-#if defined(__arm__) && defined(CORE_TEENSY)
-    if (SPISpeed == SPEED_FULL)
-        SPI.beginTransaction(SPISettings(F_BUS / 2, MSBFIRST, SPI_MODE0));
-    else if (SPISpeed == SPEED_HALF)
-        SPI.beginTransaction(SPISettings(F_BUS / 4, MSBFIRST, SPI_MODE0));
-    else // if (SPISpeed == SPEED_QUARTER)
-        SPI.beginTransaction(SPISettings(F_BUS / 8, MSBFIRST, SPI_MODE0));
-#else
-    if (SPISpeed == SPEED_FULL)
-        SPI.beginTransaction(SPISettings(F_CPU / 2, MSBFIRST, SPI_MODE0));
-    else if (SPISpeed == SPEED_HALF)
-        SPI.beginTransaction(SPISettings(F_CPU / 4, MSBFIRST, SPI_MODE0));
-    else // if (SPISpeed == SPEED_QUARTER)
-        SPI.beginTransaction(SPISettings(F_CPU / 8, MSBFIRST, SPI_MODE0));
-#endif
+    SPI.beginTransaction(_spiSettings);
 
-#ifdef VIRTMEM_SERRAM_USESPIFIFO
-    if (SPISpeed == SPEED_FULL)
-        SPIFIFO.begin(chipSelect, SPI_CLOCK_24MHz);
-    else if (SPISpeed == SPEED_HALF)
-        SPIFIFO.begin(chipSelect, SPI_CLOCK_12MHz);
-    else // if (SPISpeed == SPEED_QUARTER)
-        SPIFIFO.begin(chipSelect, SPI_CLOCK_6MHz);
+#ifdef VIRTMEM_SPIRAM_USESPIFIFO
+    SPIFIFO.begin(_sramCSPin, _fifoSpeed);
 #else
-    digitalWrite(chipSelect, LOW);
+    digitalWrite(_sramCSPin, LOW);
 #endif
 
     sendByteMore(instruction);
 }
 
-void SerialRam::endTransfer()
+void SPISerialRam::sendAddress(uint32_t address)
 {
-#ifndef VIRTMEM_SERRAM_USESPIFIFO
-    digitalWrite(chipSelect, HIGH);
+    switch(_addrBytes) {
+        case 4:
+            sendByteMore((uint8_t)(address >> 24));
+        case 3:
+            sendByteMore((uint8_t)(address >> 16));
+        case 2:
+            sendByteMore((uint8_t)(address >> 8));
+        default:
+            sendByteMore((uint8_t)address);
+    }
+}
+
+SPISerialRam::SPISerialRam()
+{ }
+
+SPISerialRam::SPISerialRam(uint32_t sramSize, pintype_t sramCSPin, uint32_t sramSpeed)
+    : _addrBytes((sramSize >= 0x1U       ? 1 : 0) +
+                 (sramSize >= 0x100U     ? 1 : 0) +
+                 (sramSize >= 0x10000U   ? 1 : 0) +
+                 (sramSize >= 0x1000000U ? 1 : 0)),
+      _sramCSPin(sramCSPin),
+      _spiSettings(sramSpeed, MSBFIRST, SPI_MODE0)
+#ifdef VIRTMEM_SPIRAM_USESPIFIFO
+      , _fifoSpeed( sramSpeed >= 24000000U ? SPI_CLOCK_24MHz :
+                   (sramSpeed >= 16000000U ? SPI_CLOCK_16MHz :
+                   (sramSpeed >= 12000000U ? SPI_CLOCK_12MHz :
+                   (sramSpeed >= 8000000U  ? SPI_CLOCK_8MHz :
+                   (sramSpeed >= 6000000U  ? SPI_CLOCK_6MHz :
+                                             SPI_CLOCK_4MHz)))))
+#endif
+{ }
+
+void SPISerialRam::begin(uint32_t sramSize, pintype_t sramCSPin, uint32_t sramSpeed)
+{
+    _addrBytes = (sramSize >= 0x1U       ? 1 : 0) +
+                 (sramSize >= 0x100U     ? 1 : 0) +
+                 (sramSize >= 0x10000U   ? 1 : 0) +
+                 (sramSize >= 0x1000000U ? 1 : 0);
+    _sramCSPin = sramCSPin;
+    _spiSettings = SPISettings(sramSpeed, MSBFIRST, SPI_MODE0);
+#ifdef VIRTMEM_SPIRAM_USESPIFIFO
+    _fifoSpeed =  sramSpeed >= 24000000U ? SPI_CLOCK_24MHz :
+                 (sramSpeed >= 16000000U ? SPI_CLOCK_16MHz :
+                 (sramSpeed >= 12000000U ? SPI_CLOCK_12MHz :
+                 (sramSpeed >= 8000000U  ? SPI_CLOCK_8MHz :
+                 (sramSpeed >= 6000000U  ? SPI_CLOCK_6MHz :
+                                           SPI_CLOCK_4MHz))));
 #endif
 
-    SPI.endTransaction();
+    begin();
 }
 
-uint8_t SerialRam::sendByteMore(uint8_t byte)
+void SPISerialRam::begin()
 {
-#ifdef VIRTMEM_SERRAM_USESPIFIFO
-    SPIFIFO.write(byte, SPI_CONTINUE);
-    return SPIFIFO.read();
-#else
-    return SPI.transfer(byte);
-#endif
-}
-
-uint8_t SerialRam::sendByteNoMore(uint8_t byte)
-{
-#ifdef VIRTMEM_SERRAM_USESPIFIFO
-    SPIFIFO.write(byte, 0);
-    const uint8_t ret = SPIFIFO.read();
-#else
-    const uint8_t ret = SPI.transfer(byte);
-#endif
-
-    endTransfer();
-    return ret;
-}
-
-void SerialRam::sendAddress(uint32_t address)
-{
-    if (largeAddressing)
-        sendByteMore((uint8_t)(address >> 16));
-    sendByteMore((uint8_t)(address >> 8));
-    sendByteMore((uint8_t)address);
-}
-
-void SerialRam::begin(bool la, uint8_t pin, SerialRam::ESPISpeed speed)
-{
-    largeAddressing = la; chipSelect = pin; SPISpeed = speed;
-
     SPI.begin();
 
-#ifndef VIRTMEM_SERRAM_USESPIFIFO
-    pinMode(chipSelect, OUTPUT);
-    digitalWrite(chipSelect, HIGH);
+#ifndef VIRTMEM_SPIRAM_USESPIFIFO
+    pinMode(_sramCSPin, OUTPUT);
+    digitalWrite(_sramCSPin, HIGH);
 #endif
 
     // default to sequential mode
@@ -108,12 +100,12 @@ void SerialRam::begin(bool la, uint8_t pin, SerialRam::ESPISpeed speed)
     sendByteNoMore(SEQUENTIAL_MODE);
 }
 
-void SerialRam::read(char *buffer, uint32_t address, uint32_t size)
+void SPISerialRam::read(char *buffer, uint32_t address, uint32_t size)
 {
     initTransfer(INSTR_READ);
     sendAddress(address);
 
-#ifdef VIRTMEM_SERRAM_USESPIFIFO
+#ifdef VIRTMEM_SPIRAM_USESPIFIFO
     if (size & 1)
     {
         if (size == 1)
@@ -138,7 +130,7 @@ void SerialRam::read(char *buffer, uint32_t address, uint32_t size)
     for (; size != 2; size-=2, buffer+=2)
     {
         SPIFIFO.write16(0xFFFF, SPI_CONTINUE);
-#ifdef VIRTMEM_SERRAM_USENODATASWAP
+#ifdef VIRTMEM_SPIRAM_USENODATASWAP
         *(uint16_t *)buffer = swapInt16(SPIFIFO.read());
 #else
         *(uint16_t *)buffer = SPIFIFO.read();
@@ -146,7 +138,7 @@ void SerialRam::read(char *buffer, uint32_t address, uint32_t size)
     }
 
     SPIFIFO.write16(0xFFFF, 0);
-#ifdef VIRTMEM_SERRAM_USENODATASWAP
+#ifdef VIRTMEM_SPIRAM_USENODATASWAP
     *(uint16_t *)buffer = swapInt16(SPIFIFO.read());
 #else
     *(uint16_t *)buffer = SPIFIFO.read();
@@ -156,7 +148,7 @@ void SerialRam::read(char *buffer, uint32_t address, uint32_t size)
     if (usefifo)
     {
         // purge FIFO
-#ifdef VIRTMEM_SERRAM_USENODATASWAP
+#ifdef VIRTMEM_SPIRAM_USENODATASWAP
         for (uint8_t i=0; i<(SPIFIFO_SIZE-1); ++i, buffer+=2)
             *(uint16_t *)buffer = swapInt16(SPIFIFO.read());
 #else
@@ -173,12 +165,12 @@ void SerialRam::read(char *buffer, uint32_t address, uint32_t size)
 #endif
 }
 
-void SerialRam::write(const char *buffer, uint32_t address, uint32_t size)
+void SPISerialRam::write(const char *buffer, uint32_t address, uint32_t size)
 {
     initTransfer(INSTR_WRITE);
     sendAddress(address);
 
-#ifdef VIRTMEM_SERRAM_USESPIFIFO
+#ifdef VIRTMEM_SPIRAM_USESPIFIFO
     if (size & 1)
     {
         if (size == 1)
@@ -197,7 +189,7 @@ void SerialRam::write(const char *buffer, uint32_t address, uint32_t size)
         // fill FIFO
         for (uint8_t i=0; i<(SPIFIFO_SIZE-1); ++i, buffer+=2)
         {
-#ifdef VIRTMEM_SERRAM_USENODATASWAP
+#ifdef VIRTMEM_SPIRAM_USENODATASWAP
             SPIFIFO.write16(getWord(buffer[0], buffer[1]), SPI_CONTINUE);
 #else
             SPIFIFO.write16(*(uint16_t *)buffer, SPI_CONTINUE);
@@ -208,7 +200,7 @@ void SerialRam::write(const char *buffer, uint32_t address, uint32_t size)
 
     for (; size != 2; size-=2, buffer+=2)
     {
-#ifdef VIRTMEM_SERRAM_USENODATASWAP
+#ifdef VIRTMEM_SPIRAM_USENODATASWAP
             SPIFIFO.write16(getWord(buffer[0], buffer[1]), SPI_CONTINUE);
 #else
             SPIFIFO.write16(*(uint16_t *)buffer, SPI_CONTINUE);
@@ -216,7 +208,7 @@ void SerialRam::write(const char *buffer, uint32_t address, uint32_t size)
         SPIFIFO.read();
     }
 
-#ifdef VIRTMEM_SERRAM_USENODATASWAP
+#ifdef VIRTMEM_SPIRAM_USENODATASWAP
     SPIFIFO.write16(getWord(buffer[0], buffer[1]), 0);
 #else
     SPIFIFO.write16(*(uint16_t *)buffer, 0);

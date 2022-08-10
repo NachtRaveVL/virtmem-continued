@@ -74,22 +74,29 @@
 #if defined(CORE_TEENSY) && defined(__arm__)
 
 /**
-  * @def VIRTMEM_SERRAM_USESPIFIFO
+  * @def VIRTMEM_SPIRAM_USESPIFIFO
   * @brief Use SPIFIFO on Teensy 3.X boards.
   */
-#define VIRTMEM_SERRAM_USESPIFIFO
+#define VIRTMEM_SPIRAM_USESPIFIFO
 
 /**
-  * @def VIRTMEM_SERRAM_USENODATASWAP
+  * @def VIRTMEM_SPIRAM_USENODATASWAP
   * @brief If using SPIFIFO, do not reverse byte order to speed up reads.
   * Enabling this might be useful if you plan to use the RAM with other code.
   * Disabled this doesn't work with swapping.
   */
-#define VIRTMEM_SERRAM_USENODATASWAP
+#define VIRTMEM_SPIRAM_USENODATASWAP
 
 #endif // if defined(CORE_TEENSY) && defined(__arm__)
 
 namespace virtmem {
+
+// Pin # type storage
+#if defined(ARDUINO_ARCH_MBED)
+typedef uint32_t pintype_t;
+#else
+typedef uint8_t pintype_t;
+#endif
 
 // Default virtual memory page settings
 // NOTE: Take care of sufficiently large int types when increasing these values

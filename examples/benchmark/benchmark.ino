@@ -25,6 +25,7 @@
 #define SPIRAM_BUFSIZE 1024l * 12l
 #define SPIRAM_REPEATS 5
 #define SPIRAM_CSPIN 9
+#define SPIRAM_SPISPEED SRAM_SPI_SPEED
 
 #define SERIALRAM_POOLSIZE 1024l * 1024l
 #define SERIALRAM_BUFSIZE 1024l * 12l
@@ -45,7 +46,7 @@ StaticVAllocP<STATICALLOC_POOLSIZE> staticAlloc;
 #ifdef RUN_SPIRAMALLOC
 #include <SPI.h>
 #include <alloc/spiram_alloc.h>
-SPIRAMVAlloc SPIRamAlloc(SPIRAM_POOLSIZE, true, SPIRAM_CSPIN, SerialRam::SPEED_FULL);
+SPIRAMVAlloc spiRamAlloc(SPIRAM_POOLSIZE, true, SPIRAM_CSPIN, SPIRAM_SPISPEED);
 #endif
 
 #ifdef RUN_SERIALALLOC
@@ -56,7 +57,7 @@ SerialVAlloc serialRamAlloc(SERIALRAM_POOLSIZE, /*115200*/1000000);
 #ifdef RUN_SDALLOC
 #include <SD.h>
 #include <alloc/sd_alloc.h>
-SDVAlloc SDRamAlloc(SD_POOLSIZE, SD_CSPIN, SD_SPISPEED);
+SDVAlloc sdRamAlloc(SD_POOLSIZE, SD_CSPIN, SD_SPISPEED);
 #endif
 
 
@@ -128,7 +129,7 @@ void loop()
 
 #ifdef RUN_SPIRAMALLOC
     Serial.println("Running SPI ram allocator...\n");
-    runBenchmarks(SPIRamAlloc, SPIRAM_BUFSIZE, SPIRAM_REPEATS);
+    runBenchmarks(spiRamAlloc, SPIRAM_BUFSIZE, SPIRAM_REPEATS);
     Serial.println("\nDone!");
 #endif
 
@@ -140,7 +141,7 @@ void loop()
 
 #ifdef RUN_SDALLOC
     Serial.println("Running sd fat allocator...\n");
-    runBenchmarks(SDRamAlloc, SD_BUFSIZE, SD_REPEATS);
+    runBenchmarks(sdRamAlloc, SD_BUFSIZE, SD_REPEATS);
     Serial.println("\nDone!");
 #endif
 
