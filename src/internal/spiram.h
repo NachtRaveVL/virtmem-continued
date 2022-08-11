@@ -38,6 +38,9 @@ class SPISerialRam
 
     uint8_t _addrBytes;
     pintype_t _sramCSPin;
+#ifdef VIRTMEM_SPIRAM_CAPTURESPEED
+    uint32_t _sramSpeed;
+#endif
     SPISettings _spiSettings;
 #ifdef VIRTMEM_SPIRAM_USESPIFIFO
     uint32_t _fifoSpeed;
@@ -57,6 +60,12 @@ public:
 
     void read(char *buffer, uint32_t address, uint32_t size);
     void write(const char *buffer, uint32_t address, uint32_t size);
+
+    inline uint8_t getSRAMAddressBytes() const { return _addrBytes; } 
+    inline pintype_t getSRAMCSPin() const { return _sramCSPin; }
+#ifdef VIRTMEM_SPIRAM_CAPTURESPEED
+    inline uint32_t getSRAMSpeed() const { return _sramSpeed; }
+#endif
 };
 
 }

@@ -159,6 +159,15 @@ public:
         if (!_sdBegan) { beginSD(); }
         if (_sdBegan) { _sdClass->remove(_ramFilename.c_str()); }
     }
+
+    /**
+     * Returns the SD card's cable-select (CS) pin used.
+     */
+    inline pintype_t getSDCSPin() const { return _sdCSPin; }
+    /**
+     * Returns the SD card's SPI speed setting used, in Hz.
+     */
+    inline uint32_t getSDSpeed() const { return _sdSpeed; }
 };
 
 typedef SDVAllocP<> SDVAlloc; //!< Shortcut to SDVAllocP with default template arguments

@@ -64,6 +64,9 @@ SPISerialRam::SPISerialRam(uint32_t sramSize, pintype_t sramCSPin, uint32_t sram
                    (sramSpeed >= 6000000U  ? SPI_CLOCK_6MHz :
                                              SPI_CLOCK_4MHz)))))
 #endif
+#ifdef VIRTMEM_SPIRAM_CAPTURESPEED
+      , _sramSpeed(sramSpeed)
+#endif
 { }
 
 void SPISerialRam::begin(uint32_t sramSize, pintype_t sramCSPin, uint32_t sramSpeed)

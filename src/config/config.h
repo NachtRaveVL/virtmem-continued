@@ -75,7 +75,7 @@
 
 /**
   * @def VIRTMEM_SPIRAM_USESPIFIFO
-  * @brief Use SPIFIFO on Teensy 3.X boards.
+  * @brief Uses SPIFIFO library in place of platform SPI library when on Teensy 3.X boards.
   */
 #define VIRTMEM_SPIRAM_USESPIFIFO
 
@@ -88,6 +88,13 @@
 #define VIRTMEM_SPIRAM_USENODATASWAP
 
 #endif // if defined(CORE_TEENSY) && defined(__arm__)
+
+/**
+  * @def VIRTMEM_SPIRAM_CAPTURESPEED
+  * @brief Captures SRAM SPI speed setting for later retrieval.
+  * This can be disabled if desired to save on some space.
+  */
+#define VIRTMEM_SPIRAM_CAPTURESPEED
 
 namespace virtmem {
 

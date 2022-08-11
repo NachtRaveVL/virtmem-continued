@@ -78,6 +78,19 @@ public:
     SPIRAMVAllocP(VPtrSize ps, pintype_t cs = SRAM_CHIP_SELECT_PIN, uint32_t sp = SRAM_SPI_SPEED) :
         _spiSRam(ps, cs, sp) { this->setPoolSize(ps); }
     ~SPIRAMVAllocP(void) { doStop(); }
+
+    /**
+     * Returns the SPI serial RAM's cable-select (CS) pin used.
+     */
+    inline pintype_t getSRAMCSPin() const { return _spiSRam.getSRAMCSPin(); }
+
+#ifdef VIRTMEM_SPIRAM_CAPTURESPEED
+    /**
+     * Returns the SPI serial RAM's SPI speed setting used, in Hz.
+     * @sa @ref VIRTMEM_SPIRAM_CAPTURESPEED
+     */
+    inline uint32_t getSRAMSpeed() const { return _sdSpeed.getSRAMSpeed(); }
+#endif
 };
 
 typedef SPIRAMVAllocP<> SPIRAMVAlloc; //!< Shortcut to SPIRAMVAllocP with default template arguments
