@@ -89,7 +89,7 @@ public:
      * Returns the SPI serial RAM's SPI speed setting used, in Hz.
      * @sa @ref VIRTMEM_SPIRAM_CAPTURESPEED
      */
-    inline uint32_t getSRAMSpeed() const { return _sdSpeed.getSRAMSpeed(); }
+    inline uint32_t getSRAMSpeed() const { return _spiSRam.getSRAMSpeed(); }
 #endif
 };
 

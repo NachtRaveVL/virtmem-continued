@@ -22,7 +22,7 @@
   * @brief If defined, enable wrapping of regular pointers inside virtmem::VPtr.
   * @sa virtmem::VPtr::wrap
   */
-#define VIRTMEM_WRAP_CPOINTERS
+//#define VIRTMEM_WRAP_CPOINTERS
 
 /**
   * @def VIRTMEM_VIRT_ADDRESS_OPERATOR

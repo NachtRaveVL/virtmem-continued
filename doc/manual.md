@@ -437,8 +437,8 @@ invalid pointer address. To avoid this, the
 [isWrapped() function](@ref virtmem::BaseVPtr::isWrapped) can be used.
 
 @note Wrapping regular pointers introduces a small overhead in usage of virtual
-pointers and is **enabled by default**. This feature can be disabled for a small
-performance boost in @ref config.h.
+pointers and is **disabled by default**. This feature can be enabled or disabled
+in @ref config.h.
 
 ## Dealing with large data structures {#aLargeStructs}
 
