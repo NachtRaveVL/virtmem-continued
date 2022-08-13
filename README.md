@@ -2,7 +2,7 @@
 
 Original library: https://github.com/rhelmus/virtmem
 
-This version of the library is in maintenance-only mode. The intention is to continue the legacy of the original library, but made to work for modern compilation systems. No new features outside of that which the community or the original author provide are scheduled. Fixes through community pull requests are most appreciated. Please report bugs to issue tracker. Please no feature requests outside of pull requests.
+This version of the library is in maintenance-only mode. The intention is to continue the legacy of the original library, but made to work for modern compilation systems. No new features outside of that which the community or the original author provide are scheduled. Fixes through community pull requests are most appreciated. Please report bugs to issue tracker. Please no feature requests outside of pull requests that do not change any existing interfaces.
 
 ## Introduction
 `virtmem-continued` is an Arduino library that allows your project to easily use an external memory source to extend the (limited) amount of available RAM. This library supports several memory resources, for instance, SPI ram (e.g. the `23LC1024` or `23K256` chip from Microchip), an SD card or even a computer connected via a serial connection. The library is made in such a way that managing and using this _virtual memory_ closely resembles working with data from 'normal' memory.
