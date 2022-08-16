@@ -168,6 +168,10 @@ public:
      * Returns the SD card's SPI speed setting used, in Hz.
      */
     inline uint32_t getSDSpeed() const { return _sdSpeed; }
+    /**
+     * Returns the state of the SD card's begin() call.
+     */
+    inline bool getSDBegan() const { return _sdBegan; }
 };
 
 typedef SDVAllocP<> SDVAlloc; //!< Shortcut to SDVAllocP with default template arguments
